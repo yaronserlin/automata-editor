@@ -37,26 +37,6 @@ A web-based, interactive tool for designing and exporting finite state automata 
 - **Multi-Select**: Click and drag on an empty area of the canvas.
 - **Delete Elements**: Select nodes or edges and press `Delete` or `Backspace`.
 
-## Local Installation
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   ```
-   *(Replace `<repository-url>` with the actual URL of this repository).*
-2. Navigate to the project directory:
-   ```bash
-   cd "Visual Automaton Editor"
-   ```
-3. Start a local web server (Recommended to avoid potential local file protocol restrictions, although opening `index.html` directly may work for most features):
-   ```bash
-   # Using Node.js (npx)
-   npx serve .
-   
-   # Or using Python 3
-   python3 -m http.server 8000
-   ```
-4. Open your web browser and navigate to `http://localhost:3000` (or `http://localhost:8000`).
 
 ## More Details
 
