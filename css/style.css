@@ -1,0 +1,118 @@
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* SVG Styles */
+svg {
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+    display: block;
+}
+
+.node {
+    cursor: move;
+}
+
+.node-circle {
+    fill: white;
+    stroke: #333;
+    stroke-width: 2;
+    transition: fill 0.2s;
+}
+
+.node:hover .node-circle {
+    fill: #f0fdf4;
+    stroke: #16a34a;
+}
+
+.node.selected .node-circle {
+    stroke: #2563eb;
+    stroke-width: 3;
+    fill: #eff6ff;
+}
+
+/* Accept Node Inner Circle */
+.accept-circle {
+    fill: none;
+    stroke: #333;
+    stroke-width: 1.5;
+    pointer-events: none;
+}
+
+.node:hover .accept-circle {
+    stroke: #16a34a;
+}
+
+.node.selected .accept-circle {
+    stroke: #2563eb;
+}
+
+/* KaTeX Container inside Nodes */
+.katex-container {
+    color: #333;
+    transition: color 0.2s;
+}
+
+.node:hover .katex-container {
+    color: #16a34a;
+    font-weight: bold;
+}
+
+.node.selected .katex-container {
+    color: #2563eb;
+    font-weight: bold;
+}
+
+/* Start Arrow */
+.start-arrow {
+    fill: none;
+    stroke: #333;
+    stroke-width: 2;
+    marker-end: url(#arrowhead);
+    pointer-events: none;
+    transition: stroke 0.2s;
+}
+
+.node.selected .start-arrow {
+    stroke: #2563eb;
+}
+
+/* Edges */
+.edge-path {
+    fill: none;
+    stroke: #666;
+    stroke-width: 2;
+    marker-end: url(#arrowhead);
+    cursor: pointer;
+    transition: stroke-width 0.2s, stroke 0.2s;
+}
+
+.edge-path:hover {
+    stroke-width: 4;
+    stroke: #16a34a;
+}
+
+.edge.selected .edge-path {
+    stroke: #2563eb;
+    stroke-width: 3;
+}
+
+/* Temporary Edge (during drag) */
+.temp-edge {
+    fill: none;
+    stroke: #94a3b8;
+    stroke-width: 2;
+    stroke-dasharray: 5, 5;
+    marker-end: url(#arrowhead-temp);
+    pointer-events: none;
+}
+
+/* Selection Box for Multi-select */
+#selection-box {
+    fill: rgba(37, 99, 235, 0.1);
+    stroke: #2563eb;
+    stroke-width: 1;
+    stroke-dasharray: 4;
+    pointer-events: none;
+}

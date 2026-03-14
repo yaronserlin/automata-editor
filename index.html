@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Automaton Editor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col p-6 box-border">
+
+    <!-- Header & Export Buttons -->
+    <div class="flex justify-between items-end mb-4 shrink-0">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-800">Visual Automaton Editor</h1>
+            <p class="text-slate-500 mt-1">Design, edit, and export deterministic and non-deterministic finite automata.
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-3 justify-end">
+            <!-- Hidden file input for load -->
+            <input type="file" id="load-file-input" accept=".json" class="hidden" onchange="loadProject(event)">
+
+            <button onclick="document.getElementById('load-file-input').click()"
+                class="px-4 py-2 bg-emerald-600 text-white rounded shadow hover:bg-emerald-700 font-medium text-sm flex items-center justify-center gap-2 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                </svg>
+                Load
+            </button>
+            <button onclick="saveProject()"
+                class="px-4 py-2 bg-emerald-600 text-white rounded shadow hover:bg-emerald-700 font-medium text-sm flex items-center justify-center gap-2 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
+                    </path>
+                </svg>
+                Save
+            </button>
+
+            <div class="w-px bg-slate-300 mx-1 hidden sm:block"></div>
+
+            <button onclick="exportSVG()"
+                class="px-4 py-2 bg-indigo-600 text-white rounded shadow hover:bg-indigo-700 font-medium text-sm flex items-center justify-center gap-2 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Download SVG
+            </button>
+            <button onclick="exportTikZ()"
+                class="px-4 py-2 bg-slate-800 text-white rounded shadow hover:bg-slate-900 font-medium text-sm flex items-center justify-center gap-2 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                </svg>
+                Download LaTeX
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex gap-6 min-h-0 relative">
+
+        <!-- Canvas Container -->
+        <div id="canvas-container"
+            class="flex-1 relative border-2 border-slate-300 rounded-xl shadow-sm bg-white overflow-hidden select-none">
+
+            <!-- Zoom Controls -->
+            <div
+                class="absolute bottom-4 right-4 bg-white/90 backdrop-blur border border-slate-200 rounded-lg shadow-sm flex items-center p-1 z-20">
+                <button onclick="changeZoom(-0.1)" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 transition"
+                    title="Zoom Out">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                    </svg>
+                </button>
+                <span id="zoom-level-display"
+                    class="px-2 text-sm font-medium text-slate-700 w-14 text-center select-none">100%</span>
+                <button onclick="changeZoom(0.1)" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 transition"
+                    title="Zoom In">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <svg id="automaton-canvas">
+                <defs>
+                    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5"
+                        orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#333" />
+                    </marker>
+                    <marker id="arrowhead-temp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5"
+                        orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+                    </marker>
+                </defs>
+
+                <rect id="selection-box" class="hidden" x="0" y="0" width="0" height="0"></rect>
+                <g id="guides-layer"></g>
+                <g id="edges-layer"></g>
+                <path id="temp-edge" class="temp-edge hidden" d="M0,0 L0,0"></path>
+                <g id="nodes-layer"></g>
+            </svg>
+
+            <!-- Properties Panel (Floating inside canvas area) -->
+            <div id="properties-panel"
+                class="absolute top-4 right-4 w-72 bg-white/95 backdrop-blur border border-slate-200 rounded-lg shadow-lg z-20 p-5 hidden">
+                <h3 class="text-lg font-semibold mb-4 text-slate-800" id="panel-title">Properties</h3>
+                <div id="node-props" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Node Name:</label>
+                        <input type="text" id="node-name-input"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="node-is-start"
+                            class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                        <label for="node-is-start" class="text-sm text-slate-700">Start Node</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="node-is-accept"
+                            class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                        <label for="node-is-accept" class="text-sm text-slate-700">Accept Node</label>
+                    </div>
+                </div>
+                <div id="edge-props" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Transition Label:</label>
+                        <textarea id="edge-label-input"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g., a, b, \epsilon" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Instructions Footer -->
+    <div id="instructions"
+        class="mt-4 p-5 bg-white border border-slate-200 rounded-lg shadow-sm text-sm text-slate-700 grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0">
+        <div>
+            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Create & Edit</h4>
+            <ul class="space-y-1">
+                <li>🖱️ <strong>Double-click</strong>: Create Node</li>
+                <li>🔗 <strong>Shift + Drag</strong>: Create Edge</li>
+                <li>👆 <strong>Click</strong>: Select & Edit properties</li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Move & Select</h4>
+            <ul class="space-y-1">
+                <li>✋ <strong>Drag node</strong>: Move (Auto-snaps)</li>
+                <li>📦 <strong>Drag background</strong>: Multi-select</li>
+                <li>🔄 <strong>Drag Start Arrow</strong>: Change orientation</li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Actions</h4>
+            <ul class="space-y-1">
+                <li>⌨️ <strong>Delete / Backspace</strong>: Delete selection</li>
+                <li>🔍 <strong>Ctrl + Scroll</strong> (or Buttons): Zoom Canvas</li>
+                <li>🖐️ <strong>Middle-Click / Alt+Drag</strong>: Pan Canvas</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Copyright Footer -->
+    <footer class="mt-2 text-center text-xs text-slate-400 shrink-0 pb-2">
+        &copy; 2026 Visual Automaton Editor. All rights reserved.
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/globals.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/graph.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>
