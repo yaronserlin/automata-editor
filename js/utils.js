@@ -11,13 +11,25 @@ function renderKatex(text) {
 
 /**
  * Gets the actual, accurate mouse position relative to SVG coordinates - regardless of zoom level or canvas location.
- * @param {MouseEvent} event - The mouse event triggered on the canvas.
+ * @param {MouseEvent|TouchEvent} event - The mouse/touch event triggered on the canvas.
  * @returns {{positionX: number, positionY: number}} The precise coordinates within the SVG space.
  */
 function getMousePosition(event) {
     const svgPoint = svgCanvas.createSVGPoint();
-    svgPoint.x = event.clientX;
-    svgPoint.y = event.clientY;
+    
+    let clientX = event.clientX;
+    let clientY = event.clientY;
+
+    if (event.touches && event.touches.length > 0) {
+        clientX = event.touches[0].clientX;
+        clientY = event.touches[0].clientY;
+    } else if (event.changedTouches && event.changedTouches.length > 0) {
+        clientX = event.changedTouches[0].clientX;
+        clientY = event.changedTouches[0].clientY;
+    }
+
+    svgPoint.x = clientX;
+    svgPoint.y = clientY;
 
     const currentTransformationMatrix = svgCanvas.getScreenCTM();
     if (currentTransformationMatrix) {
@@ -25,7 +37,7 @@ function getMousePosition(event) {
         return { positionX: transformedPoint.x, positionY: transformedPoint.y };
     }
 
-    return { positionX: event.clientX, positionY: event.clientY };
+    return { positionX: clientX, positionY: clientY };
 }
 
 /**

@@ -44,14 +44,16 @@ function changeZoom(delta) {
 }
 
 /**
- * Updates the properties panel to show the selected node/edge's properties.
+ * Updates the properties panel to show the selected node/edge's properties if it's currently visible.
  */
 function updatePropertiesPanel() {
     if (!selectedElement || (selectedNodes.size > 1)) {
         propertiesPanel.style.display = 'none';
         return;
     }
-    propertiesPanel.style.display = 'block';
+    
+    // Only update values if it's already block, or if called from openPropertiesPanel
+    if (propertiesPanel.style.display !== 'block') return;
 
     if (selectedElement.type === 'node') {
         const node = getNodeById(selectedElement.id);
@@ -69,4 +71,13 @@ function updatePropertiesPanel() {
         nodePropsDiv.style.display = 'none'; edgePropsDiv.style.display = 'block';
         edgeLabelInput.value = edge.label;
     }
+}
+
+/**
+ * Explicitly opens the properties panel for the currently selected element.
+ */
+function openPropertiesPanel() {
+    if (!selectedElement || (selectedNodes.size > 1)) return;
+    propertiesPanel.style.display = 'block';
+    updatePropertiesPanel();
 }

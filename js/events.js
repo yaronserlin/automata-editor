@@ -9,14 +9,54 @@ svgCanvas.addEventListener('wheel', (event) => {
     }
 }, { passive: false });
 
-svgCanvas.addEventListener('mousedown', (event) => {
-    // Camera pan action - middle mouse button or Alt+Click
-    if (event.button === 1 || (event.button === 0 && event.altKey)) {
-        event.preventDefault();
+let lastTapTime = 0;
+let lastNodeTapTime = 0;
+let dragStartPosition = null;
+const handleCanvasPointerDown = (event) => {
+    // Double-tap implementation (max 300ms)
+    if (event.type === 'touchstart') {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTapTime;
+        if (tapLength < 300 && tapLength > 0) {
+            handleDoubleClick(event);
+            lastTapTime = 0;
+            return;
+        }
+        lastTapTime = currentTime;
+    }
+
+    // Pinch-to-zoom initialization
+    if (event.type === 'touchstart' && event.touches && event.touches.length === 2) {
+        if (event.cancelable) event.preventDefault();
+        const dx = event.touches[0].clientX - event.touches[1].clientX;
+        const dy = event.touches[0].clientY - event.touches[1].clientY;
+        initialPinchDistance = Math.hypot(dx, dy);
+        isPinching = true;
+        isPanning = false; // Override panning
+        return;
+    }
+
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+
+    // Camera pan action - middle mouse button or Alt+Click or 2-finger touch
+    if (event.button === 1 || (event.button === 0 && event.altKey) || (event.type === 'touchstart' && event.touches && event.touches.length === 2)) {
+        if (event.cancelable) event.preventDefault();
         isPanning = true;
+        isPinching = false;
+        
+        let panClientX = clientX;
+        let panClientY = clientY;
+        
+        // Use midpoint of two fingers for panning
+        if (event.touches && event.touches.length === 2) {
+            panClientX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+            panClientY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+        }
+
         panStart = {
-            positionX: event.clientX,
-            positionY: event.clientY,
+            positionX: panClientX,
+            positionY: panClientY,
             initialPanX: panPositionX,
             initialPanY: panPositionY
         };
@@ -25,8 +65,18 @@ svgCanvas.addEventListener('mousedown', (event) => {
     }
 
     if (event.target.tagName === 'svg') {
-        event.preventDefault();
+        if (event.type !== 'touchstart' || event.cancelable) event.preventDefault();
+        
+        // Single tapping the bg closes properties and drawing modes
+        if (isDrawingEdge) {
+            isDrawingEdge = false;
+            tempEdgePath.style.display = 'none';
+            sourceNodeForEdge = null;
+        }
+        
         selectElement(null);
+        propertiesPanel.style.display = 'none'; // Force hide
+
         if (!event.shiftKey) {
             selectedNodes.clear();
         }
@@ -44,10 +94,47 @@ svgCanvas.addEventListener('mousedown', (event) => {
 
         renderAll();
     }
-});
+};
 
-svgCanvas.addEventListener('dblclick', (event) => {
-    if (event.target.tagName === 'svg') {
+svgCanvas.addEventListener('mousedown', handleCanvasPointerDown);
+svgCanvas.addEventListener('touchstart', handleCanvasPointerDown, { passive: false });
+
+const handleDoubleClick = (event) => {
+    if (event.cancelable) event.preventDefault();
+
+    let targetElement = event.target;
+    // Walk up to see if a node or edge was clicked
+    let nodeGroup = targetElement.closest ? targetElement.closest('.node') : null;
+    let edgeGroup = targetElement.closest ? targetElement.closest('.edge') : null;
+
+    if (nodeGroup && nodeGroup.dataset && nodeGroup.dataset.id) {
+        // Double clicked a Node -> Open Properties AND start drawing edge
+        const nodeId = nodeGroup.dataset.id;
+        selectedNodes.clear();
+        selectedNodes.add(nodeId);
+        selectElement({ type: 'node', id: nodeId });
+        if (typeof openPropertiesPanel === 'function') openPropertiesPanel();
+        
+        isDrawingEdge = true;
+        sourceNodeForEdge = nodeId;
+        isDraggingNode = false;
+        draggedNodeId = null;
+
+        const node = getNodeById(nodeId);
+        if (node) {
+            const initialTouchPos = getMousePosition(event);
+            tempEdgePath.style.display = 'block';
+            tempEdgePath.setAttribute("d", `M ${node.positionX},${node.positionY} L ${initialTouchPos.positionX},${initialTouchPos.positionY}`);
+        }
+        renderAll();
+    } else if (edgeGroup && edgeGroup.dataset && edgeGroup.dataset.id) {
+        // Double clicked an Edge -> Open Properties
+        const edgeId = edgeGroup.dataset.id;
+        selectedNodes.clear();
+        selectElement({ type: 'edge', id: edgeId });
+        if (typeof openPropertiesPanel === 'function') openPropertiesPanel();
+    } else if (targetElement.tagName === 'svg') {
+        // Double clicked the Background -> Create Node
         const position = getMousePosition(event);
         const newNode = addNode(position.positionX, position.positionY);
         selectedNodes.clear();
@@ -55,20 +142,52 @@ svgCanvas.addEventListener('dblclick', (event) => {
         selectElement({ type: 'node', id: newNode.id });
         renderAll();
     }
-});
+};
 
-svgCanvas.addEventListener('mousemove', (event) => {
+svgCanvas.addEventListener('dblclick', handleDoubleClick);
+
+let initialPinchDistance = null;
+let isPinching = false;
+const handleCanvasPointerMove = (event) => {
+
+    // Pinch-to-zoom execution
+    if (isPinching && event.touches && event.touches.length === 2) {
+        if (event.cancelable) event.preventDefault();
+        const dx = event.touches[0].clientX - event.touches[1].clientX;
+        const dy = event.touches[0].clientY - event.touches[1].clientY;
+        const currentDistance = Math.hypot(dx, dy);
+        
+        if (initialPinchDistance > 0) {
+            const zoomDelta = (currentDistance - initialPinchDistance) * 0.005; // Adjust sensitivity
+            changeZoom(zoomDelta);
+        }
+        initialPinchDistance = currentDistance;
+        return;
+    }
     // Panning the camera in the infinite space
     if (isPanning) {
+        if (event.cancelable) event.preventDefault();
+        let clientX = event.touches ? event.touches[0].clientX : event.clientX;
+        let clientY = event.touches ? event.touches[0].clientY : event.clientY;
+        
+        if (event.touches && event.touches.length === 2) {
+            clientX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+            clientY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+        }
+        
         // Convert screen pixels to internal canvas coordinates for smooth panning at any zoom level
-        const deltaX = (event.clientX - panStart.positionX) / currentZoom;
-        const deltaY = (event.clientY - panStart.positionY) / currentZoom;
+        const deltaX = (clientX - panStart.positionX) / currentZoom;
+        const deltaY = (clientY - panStart.positionY) / currentZoom;
 
         panPositionX = panStart.initialPanX + deltaX;
         panPositionY = panStart.initialPanY + deltaY;
 
         updateViewBox();
         return;
+    }
+    
+    if (event.type === 'touchmove' && (isDraggingNode || isDraggingEdge || isDrawingEdge || isBoxSelecting || isDraggingStartArrow)) {
+        if (event.cancelable) event.preventDefault(); // stop scroll while dragging
     }
 
     const mousePosition = getMousePosition(event);
@@ -229,9 +348,18 @@ svgCanvas.addEventListener('mousemove', (event) => {
             renderAll();
         }
     }
-});
+};
 
-svgCanvas.addEventListener('mouseup', (event) => {
+svgCanvas.addEventListener('mousemove', handleCanvasPointerMove);
+svgCanvas.addEventListener('touchmove', handleCanvasPointerMove, { passive: false });
+
+const handleCanvasPointerUp = (event) => {
+    if (isPinching && (!event.touches || event.touches.length < 2)) {
+        isPinching = false;
+        initialPinchDistance = null;
+        return;
+    }
+
     if (isPanning) {
         isPanning = false;
         svgCanvas.style.cursor = 'crosshair';
@@ -266,7 +394,11 @@ svgCanvas.addEventListener('mouseup', (event) => {
 
     activeGuides = [];
     renderGuides();
-});
+};
+
+svgCanvas.addEventListener('mouseup', handleCanvasPointerUp);
+svgCanvas.addEventListener('touchend', handleCanvasPointerUp);
+svgCanvas.addEventListener('touchcancel', handleCanvasPointerUp);
 
 /**
  * Handles the mouse down event for a specified node. Selects the node and initiates dragging.
@@ -275,45 +407,74 @@ svgCanvas.addEventListener('mouseup', (event) => {
  */
 function handleNodeMouseDown(event, nodeId) {
     event.stopPropagation();
-    event.preventDefault();
+    if (event.type !== 'touchstart' || event.cancelable) event.preventDefault();
 
-    if (event.shiftKey) {
-        // Draw edge
-        isDrawingEdge = true;
-        sourceNodeForEdge = nodeId;
-    } else {
-        // If we clicked a node that isn't selected, select ONLY it
-        if (!selectedNodes.has(nodeId)) {
-            selectedNodes.clear();
-            selectedNodes.add(nodeId);
+    if (event.type === 'touchstart') {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastNodeTapTime;
+        if (tapLength < 300 && tapLength > 0) {
+            // Emulate double click since stopPropagation blocks canvas from seeing it
+            handleDoubleClick(event);
+            lastNodeTapTime = 0;
+            return; 
         }
-
-        selectElement({ type: 'node', id: nodeId });
-
-        // Prepare for dragging all selected nodes
-        isDraggingNode = true;
-        draggedNodeId = nodeId;
-        dragStartPosition = getMousePosition(event);
-        initialNodePositions.clear();
-        selectedNodes.forEach(id => {
-            const node = getNodeById(id);
-            if (node) initialNodePositions.set(id, { positionX: node.positionX, positionY: node.positionY });
-        });
+        lastNodeTapTime = currentTime;
     }
+
+    // If drawing edge, clicking another node finishes it.
+    if (isDrawingEdge && sourceNodeForEdge) {
+        handleNodeMouseUp(event, nodeId);
+        return; // Don't drag the node we just connected to
+    }
+
+    // Single click just selects (doesn't open properties if closed) 
+    // and prepares for drag.
+    if (!selectedNodes.has(nodeId)) {
+        selectedNodes.clear();
+        selectedNodes.add(nodeId);
+    }
+
+    // Prepare for dragging all selected nodes
+    isDraggingNode = true;
+    draggedNodeId = nodeId;
+    dragStartPosition = getMousePosition(event);
+    initialNodePositions.clear();
+    selectedNodes.forEach(id => {
+        const node = getNodeById(id);
+        if (node) initialNodePositions.set(id, { positionX: node.positionX, positionY: node.positionY });
+    });
+
     renderAll();
 }
 
 /**
  * Handles the mouse up event for a target node, finishing the edge drawing process if active.
- * @param {MouseEvent} event - The mouse event.
+ * @param {MouseEvent|TouchEvent} event - The mouse/touch event.
  * @param {string} targetNodeId - The ID of the node released on.
  */
 function handleNodeMouseUp(event, targetNodeId) {
     if (isDrawingEdge && sourceNodeForEdge) {
         event.stopPropagation();
-        const newEdge = addEdge(sourceNodeForEdge, targetNodeId);
-        selectedNodes.clear();
-        selectElement({ type: 'edge', id: newEdge.id });
+        
+        let actualTargetId = targetNodeId;
+        if (event.type === 'touchend' || event.type === 'touchcancel') {
+            const touch = (event.changedTouches && event.changedTouches.length > 0) ? event.changedTouches[0] : null;
+            if (touch) {
+                const dropElement = document.elementFromPoint(touch.clientX, touch.clientY);
+                const nodeGroup = dropElement ? dropElement.closest('.node') : null;
+                if (nodeGroup && nodeGroup.dataset && nodeGroup.dataset.id) {
+                    actualTargetId = nodeGroup.dataset.id;
+                } else {
+                    actualTargetId = null;
+                }
+            }
+        }
+
+        if (actualTargetId) {
+            const newEdge = addEdge(sourceNodeForEdge, actualTargetId);
+            selectedNodes.clear();
+            selectElement({ type: 'edge', id: newEdge.id });
+        }
 
         isDrawingEdge = false;
         tempEdgePath.style.display = 'none';
@@ -329,9 +490,10 @@ function handleNodeMouseUp(event, targetNodeId) {
  */
 function handleEdgeMouseDown(event, edgeId) {
     event.stopPropagation();
-    event.preventDefault();
+    if (event.type !== 'touchstart' || event.cancelable) event.preventDefault();
     selectedNodes.clear();
-    selectElement({ type: 'edge', id: edgeId });
+    // Do not call selectElement to avoid opening properties on 1st click
+    // selectElement({ type: 'edge', id: edgeId });
     isDraggingEdge = true;
     draggedEdgeId = edgeId;
     renderAll();

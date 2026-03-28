@@ -32,6 +32,17 @@ svg {
     fill: #eff6ff;
 }
 
+/* Pulsing effect when drawing edge (via touch long-pres) */
+@keyframes nodePulse {
+    from { stroke-width: 2; fill: #ffffff; }
+    to { stroke-width: 4; fill: #fef3c7; }
+}
+
+.node.drawing-edge .node-circle {
+    stroke: #f59e0b;
+    animation: nodePulse 0.5s infinite alternate;
+}
+
 /* Accept Node Inner Circle */
 .accept-circle {
     fill: none;

@@ -38,9 +38,10 @@ function renderNodes() {
     nodesLayer.innerHTML = '';
     nodes.forEach(node => {
         const isSelected = selectedNodes.has(node.id);
+        const isDrawingLineFromHere = isDrawingEdge && sourceNodeForEdge === node.id;
 
         const svgGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        svgGroup.setAttribute("class", `node ${isSelected ? 'selected' : ''}`);
+        svgGroup.setAttribute("class", `node ${isSelected ? 'selected' : ''} ${isDrawingLineFromHere ? 'drawing-edge' : ''}`);
         svgGroup.setAttribute("transform", `translate(${node.positionX}, ${node.positionY})`);
         svgGroup.dataset.id = node.id;
 
@@ -72,6 +73,16 @@ function renderNodes() {
                 selectElement({ type: 'node', id: node.id });
                 renderAll();
             });
+            arrowHitbox.addEventListener('touchstart', (event) => {
+                event.stopPropagation();
+                if (event.cancelable) event.preventDefault();
+                isDraggingStartArrow = true;
+                draggedStartArrowNodeId = node.id;
+                selectedNodes.clear();
+                selectedNodes.add(node.id);
+                selectElement({ type: 'node', id: node.id });
+                renderAll();
+            }, { passive: false });
             svgGroup.appendChild(arrowHitbox);
         }
 
@@ -111,6 +122,9 @@ function renderNodes() {
 
         svgGroup.addEventListener('mousedown', (event) => handleNodeMouseDown(event, node.id));
         svgGroup.addEventListener('mouseup', (event) => handleNodeMouseUp(event, node.id));
+        svgGroup.addEventListener('touchstart', (event) => handleNodeMouseDown(event, node.id), { passive: false });
+        svgGroup.addEventListener('touchend', (event) => handleNodeMouseUp(event, node.id));
+        svgGroup.addEventListener('touchcancel', (event) => handleNodeMouseUp(event, node.id));
 
         nodesLayer.appendChild(svgGroup);
 
@@ -268,6 +282,7 @@ function renderEdges() {
         bgDiv.innerHTML = lines.map(lineText => renderKatex(lineText)).join('<br/>');
 
         bgDiv.addEventListener('mousedown', (event) => handleEdgeMouseDown(event, edge.id));
+        bgDiv.addEventListener('touchstart', (event) => handleEdgeMouseDown(event, edge.id), { passive: false });
 
         containerDiv.appendChild(bgDiv);
         foreignObjectElement.appendChild(containerDiv);
@@ -275,6 +290,8 @@ function renderEdges() {
 
         path.addEventListener('mousedown', (event) => handleEdgeMouseDown(event, edge.id));
         hitbox.addEventListener('mousedown', (event) => handleEdgeMouseDown(event, edge.id));
+        path.addEventListener('touchstart', (event) => handleEdgeMouseDown(event, edge.id), { passive: false });
+        hitbox.addEventListener('touchstart', (event) => handleEdgeMouseDown(event, edge.id), { passive: false });
 
         edgesLayer.appendChild(svgGroup);
     });
