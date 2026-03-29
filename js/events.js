@@ -11,7 +11,6 @@ svgCanvas.addEventListener('wheel', (event) => {
 
 let lastTapTime = 0;
 let lastNodeTapTime = 0;
-let dragStartPosition = null;
 const handleCanvasPointerDown = (event) => {
     // Double-tap implementation (max 300ms)
     if (event.type === 'touchstart') {
@@ -44,10 +43,10 @@ const handleCanvasPointerDown = (event) => {
         if (event.cancelable) event.preventDefault();
         isPanning = true;
         isPinching = false;
-        
+
         let panClientX = clientX;
         let panClientY = clientY;
-        
+
         // Use midpoint of two fingers for panning
         if (event.touches && event.touches.length === 2) {
             panClientX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
@@ -66,14 +65,14 @@ const handleCanvasPointerDown = (event) => {
 
     if (event.target.tagName === 'svg') {
         if (event.type !== 'touchstart' || event.cancelable) event.preventDefault();
-        
+
         // Single tapping the bg closes properties and drawing modes
         if (isDrawingEdge) {
             isDrawingEdge = false;
             tempEdgePath.style.display = 'none';
             sourceNodeForEdge = null;
         }
-        
+
         selectElement(null);
         propertiesPanel.style.display = 'none'; // Force hide
 
@@ -114,7 +113,7 @@ const handleDoubleClick = (event) => {
         selectedNodes.add(nodeId);
         selectElement({ type: 'node', id: nodeId });
         if (typeof openPropertiesPanel === 'function') openPropertiesPanel();
-        
+
         isDrawingEdge = true;
         sourceNodeForEdge = nodeId;
         isDraggingNode = false;
@@ -156,7 +155,7 @@ const handleCanvasPointerMove = (event) => {
         const dx = event.touches[0].clientX - event.touches[1].clientX;
         const dy = event.touches[0].clientY - event.touches[1].clientY;
         const currentDistance = Math.hypot(dx, dy);
-        
+
         if (initialPinchDistance > 0) {
             const zoomDelta = (currentDistance - initialPinchDistance) * 0.005; // Adjust sensitivity
             changeZoom(zoomDelta);
@@ -169,12 +168,12 @@ const handleCanvasPointerMove = (event) => {
         if (event.cancelable) event.preventDefault();
         let clientX = event.touches ? event.touches[0].clientX : event.clientX;
         let clientY = event.touches ? event.touches[0].clientY : event.clientY;
-        
+
         if (event.touches && event.touches.length === 2) {
             clientX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
             clientY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
         }
-        
+
         // Convert screen pixels to internal canvas coordinates for smooth panning at any zoom level
         const deltaX = (clientX - panStart.positionX) / currentZoom;
         const deltaY = (clientY - panStart.positionY) / currentZoom;
@@ -185,7 +184,7 @@ const handleCanvasPointerMove = (event) => {
         updateViewBox();
         return;
     }
-    
+
     if (event.type === 'touchmove' && (isDraggingNode || isDraggingEdge || isDrawingEdge || isBoxSelecting || isDraggingStartArrow)) {
         if (event.cancelable) event.preventDefault(); // stop scroll while dragging
     }
@@ -416,9 +415,29 @@ function handleNodeMouseDown(event, nodeId) {
             // Emulate double click since stopPropagation blocks canvas from seeing it
             handleDoubleClick(event);
             lastNodeTapTime = 0;
-            return; 
+            return;
         }
         lastNodeTapTime = currentTime;
+    }
+
+    // Shift+click/drag starts drawing an edge from this node.
+    if (event.shiftKey && !isDrawingEdge) {
+        const node = getNodeById(nodeId);
+        if (node) {
+            selectedNodes.clear();
+            selectedNodes.add(nodeId);
+            selectElement({ type: 'node', id: nodeId });
+            if (typeof openPropertiesPanel === 'function') openPropertiesPanel();
+
+            isDrawingEdge = true;
+            sourceNodeForEdge = nodeId;
+            isDraggingNode = false;
+            draggedNodeId = null;
+            tempEdgePath.style.display = 'block';
+            const position = getMousePosition(event);
+            tempEdgePath.setAttribute("d", `M ${node.positionX},${node.positionY} L ${position.positionX},${position.positionY}`);
+        }
+        return;
     }
 
     // If drawing edge, clicking another node finishes it.
@@ -433,6 +452,8 @@ function handleNodeMouseDown(event, nodeId) {
         selectedNodes.clear();
         selectedNodes.add(nodeId);
     }
+    selectElement({ type: 'node', id: nodeId });
+    if (typeof openPropertiesPanel === 'function') openPropertiesPanel();
 
     // Prepare for dragging all selected nodes
     isDraggingNode = true;
@@ -455,7 +476,7 @@ function handleNodeMouseDown(event, nodeId) {
 function handleNodeMouseUp(event, targetNodeId) {
     if (isDrawingEdge && sourceNodeForEdge) {
         event.stopPropagation();
-        
+
         let actualTargetId = targetNodeId;
         if (event.type === 'touchend' || event.type === 'touchcancel') {
             const touch = (event.changedTouches && event.changedTouches.length > 0) ? event.changedTouches[0] : null;
@@ -474,6 +495,7 @@ function handleNodeMouseUp(event, targetNodeId) {
             const newEdge = addEdge(sourceNodeForEdge, actualTargetId);
             selectedNodes.clear();
             selectElement({ type: 'edge', id: newEdge.id });
+            if (typeof openPropertiesPanel === 'function') openPropertiesPanel();
         }
 
         isDrawingEdge = false;
@@ -492,8 +514,8 @@ function handleEdgeMouseDown(event, edgeId) {
     event.stopPropagation();
     if (event.type !== 'touchstart' || event.cancelable) event.preventDefault();
     selectedNodes.clear();
-    // Do not call selectElement to avoid opening properties on 1st click
-    // selectElement({ type: 'edge', id: edgeId });
+    selectElement({ type: 'edge', id: edgeId });
+    if (typeof openPropertiesPanel === 'function') openPropertiesPanel();
     isDraggingEdge = true;
     draggedEdgeId = edgeId;
     renderAll();
