@@ -40,7 +40,7 @@ Finite state machines are a staple of computer science, but creating digital, ex
 
 ## 📸 Screenshots
 
-<img src="screenshot.png" alt="Automata Editor Screenshot" width="800"/>
+<img src="media/demo.png" alt="Automata Editor Screenshot" width="800"/>
 
 ## 💻 Local Installation
 
