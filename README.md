@@ -1,97 +1,103 @@
 <div align="center">
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS" />
-  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5" />
-  <br/>
-  <h1>automata-editor</h1>
+  <h1>Automata Editor</h1>
   <p>
-    An interactive, web-based tool for designing, rendering, and exporting finite state automata (DFA/NFA).
+    Design, label, and export finite-state automata (DFA/NFA) diagrams — right in your browser, no install required.
+  </p>
+  <p>
+    <a href="https://yaronserlin.github.io/automata-editor/"><strong>▶ Try the live demo</strong></a>
+    <br/>
+    <sub>(replace this link with your own GitHub Pages URL once deployed)</sub>
   </p>
 </div>
 
 ---
 
-## 📖 Table of Contents
-- [About the Project](#-about-the-project)
-- [Key Features](#-key-features)
-- [Screenshots](#-screenshots)
-- [Local Installation](#-local-installation)
-- [Usage Guide](#-usage-guide)
-- [Architecture & Tech Stack](#-architecture--tech-stack)
-- [Contributing](#-contributing)
-- [License](#-license)
+## What it does
+
+Automata Editor turns the tedious part of drawing state diagrams — for a homework assignment, a paper, a slide deck, or just to think through a design — into a few clicks. Draw states, connect them with labeled transitions, type math with LaTeX-style shortcuts (`q_0`, `\epsilon`, `\rightarrow`), and export a clean diagram when you're done.
+
+Everything runs locally in your browser. Nothing you draw is uploaded anywhere.
+
+## Features
+
+- **Click-to-build canvas** — double-click to add a state, drag to connect or reposition, drag empty space to multi-select.
+- **Math-aware labels** — state names and transition labels render live with KaTeX, so `q_0` and `\epsilon` look the way they would in a textbook.
+- **Automatic layout smarts** — overlapping transitions curve apart automatically, dragged states snap into alignment with their neighbors.
+- **Full keyboard support** — every action (create, select, connect, reshape, delete) has a keyboard shortcut, for accessibility or just speed. See [Keyboard shortcuts](#keyboard-shortcuts) below.
+- **Save and reload your work** — export your diagram to a JSON file and load it back in later.
+- **Export to SVG** — a clean, cropped image ready to drop into a document or slide.
+- **Export to LaTeX/TikZ** — ready-to-compile source using the standard `tikz` and `automata` packages, for papers written in LaTeX.
+
+## Screenshot
+
+<img src="media/demo.png" alt="Automata Editor interface showing a finite state machine diagram on a light gray canvas. Several labeled circles represent states, with transitions drawn as curved arrows between them and a properties panel on the right. The diagram includes start and accept states, a highlighted selected state, and text labels such as q_0, q_1, and epsilon. The overall tone is clean, technical, and instructional." width="800"/>
+
+<video controls width="800" playsinline muted aria-label="Screen recording of the Automata Editor interface, showing a user creating and editing a state machine diagram in a browser.">
+  <source src="media/demo.mov" type="video/quicktime" />
+  Your browser does not support the video tag.
+</video>
+
+## How to use it
+
+1. **Add a state** — double-click anywhere on the canvas.
+2. **Connect two states** — hold `Shift` and drag from one state to another, or double-click a state and drag to its target.
+3. **Edit a state or transition** — click it; a panel opens where you can rename it, mark it as a start/accept state, or edit its label.
+4. **Reshape a transition** — drag its label to bend the curve, or drag a self-loop to rotate it.
+5. **Move things around** — drag a state to reposition it; drag an empty area to box-select several states at once.
+6. **Pan and zoom** — `Alt` + drag (or the middle mouse button) to pan; `Ctrl`/`Cmd` + scroll, or the on-canvas buttons, to zoom.
+7. **Delete something** — select it and press `Delete` or `Backspace`.
+8. **Save your work** — click **Save** to download a project file; click **Load** to bring it back later.
+9. **Export a finished diagram** — **Download SVG** for an image, or **Download LaTeX** for TikZ source.
+
+### Keyboard shortcuts
+
+Every editing action is also reachable without a mouse:
+
+| Key | Action |
+|---|---|
+| `N` | Create a new state at the center of the view |
+| `[` / `]` | Select the previous / next state or transition |
+| Arrow keys | Move the selected state(s) (hold `Shift` to nudge by 1px) |
+| `Enter` | Start drawing a transition from the selected state; press again on another state to connect it (or the same state, for a self-loop) |
+| `+` / `-` | Bend the selected transition's curve (or rotate a self-loop) |
+| `0` | Reset the selected transition's shape |
+| `Escape` | Cancel a transition in progress, or clear the selection |
+| `Delete` / `Backspace` | Delete the current selection |
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-## 🚀 About the Project
+<details>
+<summary><strong>For developers: running this project locally</strong></summary>
 
-Finite state machines are a staple of computer science, but creating digital, export-ready diagrams for assignments or papers can be tedious. **automata-editor** is a lightweight, zero-dependency browser tool built to solve this problem. It allows users to quickly build automata graphs, render complex mathematical labels using LaTeX syntax, and export their work to SVG or fully formatted native TikZ code.
+<br/>
 
-## ✨ Key Features
+The app is plain JavaScript (ES modules, no framework, no bundler) with Tailwind CSS compiled ahead of time. Its source is organized by responsibility: `js/core` (the automaton data model), `js/geometry` (pure math/text helpers), `js/interaction` (camera, selection, mouse/touch, and keyboard controllers), `js/rendering` (SVG drawing), `js/ui` (the properties panel), and `js/io` (save/load and SVG/TikZ export), composed together in `js/AutomataEditorApp.js`.
 
-- **Interactive Canvas**: Add, move, and connect states with an intuitive drag-and-drop interface.
-- **Mathematical Rendering**: Supports LaTeX syntax for state names and transition labels (e.g., `q_0`, `\epsilon`), rendered beautifully in real-time using KaTeX.
-- **Smart Routing**: Transition edges automatically determine their routing to prevent visual overlap. Supports multi-graphs, self-loops, and customizable curve offsets.
-- **Smart Alignment (Snapping)**: Dragged nodes automatically snap to vertical or horizontal alignment with neighboring nodes.
-- **Import / Export functionality**: Save your workspace to a structured JSON format and restore it seamlessly.
-- **Export to SVG**: Generate clean, cropped SVG files of your automaton, ready to be embedded.
-- **Export to TikZ**: Generate ready-to-compile LaTeX code using the standard `tikz` and `automata` packages.
-- **Multi-Selection**: Box-select and drag multiple nodes and edges simultaneously. 
+**Setup:**
+```bash
+git clone https://github.com/yaronserlin/automata-editor.git
+cd automata-editor
+npm install
+npm run build:css   # regenerate css/tailwind.generated.css after editing index.html's classes
+```
 
-## 📸 Screenshots
+**Run it:**
+```bash
+npx serve .
+# or: python3 -m http.server 8000
+```
+Then open the printed `localhost` URL in your browser.
 
-<img src="media/demo.png" alt="Automata Editor Screenshot" width="800"/>
+**Test it:**
+```bash
+npm test
+```
+The Vitest suite covers the automaton model (state/transition creation and validation), the pure geometry and text-escaping helpers, and the selection-cycling logic.
 
-## 💻 Local Installation
+**Contributing:** fork the project, create a feature branch, and open a pull request.
 
-The project uses Vanilla JavaScript and does not require complex build steps, but a local server is recommended to bypass potential browser CORS issues when loading modules or saving.
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yaronserlin/automata-editor.git
-   cd automata-editor
-   ```
-2. **Start a local web server:**
-   ```bash
-   # Using Node.js (npx)
-   npx serve .
-   
-   # Or using Python 3
-   python3 -m http.server 8000
-   ```
-3. **Run the app:** Open your web browser and navigate to `http://localhost:3000` (or `http://localhost:8000`).
-
-## 🎯 Usage Guide
-
-1. **Creating Nodes**: **Double-click** the canvas to add a new state.
-2. **Creating Edges**: Hold **Shift + Drag** from one state to another to create a transition.
-3. **Editing Elements**: Select a node to edit its name, or set it as a 'Start' or 'Accept' state via the properties panel. Select an edge to edit transition symbols.
-4. **Moving Elements**: Click and drag nodes to rearrange them. Use the edge drag handle (the label area) to curve transitions.
-5. **Camera Controls**:
-   - **Pan**: `Alt` + Drag OR Middle Mouse Button + Drag.
-   - **Zoom**: `Ctrl` + Scroll OR `Cmd` + Scroll.
-6. **Multi-Select**: Click and drag on an empty area of the canvas.
-7. **Delete Elements**: Select node(s) or edge(s) and press `Delete` or `Backspace`.
-
-## 🏗 Architecture & Tech Stack
-
-This project deliberately avoids heavy frameworks to remain lightweight and fully understandable.
-
-- **Core Logic**: Modular, Vanilla JavaScript. Files are separated by concern (`globals.js`, `dom.js`, `graph.js`, `events.js`, `render.js`, `export.js`, `utils.js`, `ui.js`, `main.js`).
-- **Graphics**: Raw HTML5 `<svg>` manipulation allowing for infinite canvas calculations. 
-- **Styling**: Tailwind CSS via CDN for rapid, responsive UI development.
-- **Math Typesetting**: KaTeX for performant, offline-ready mathematical symbol parsing.
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+</details>
