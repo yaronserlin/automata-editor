@@ -5,8 +5,6 @@
   </p>
   <p>
     <a href="https://yaronserlin.github.io/automata-editor/"><strong>▶ Try the live demo</strong></a>
-    <br/>
-    <sub>(replace this link with your own GitHub Pages URL once deployed)</sub>
   </p>
 </div>
 
@@ -98,6 +96,6 @@ npm test
 ```
 The Vitest suite covers the automaton model (state/transition creation and validation), the pure geometry and text-escaping helpers, and the selection-cycling logic.
 
-**Contributing:** fork the project, create a feature branch, and open a pull request.
+**Contributing:** fork the project, create a feature branch, and open a pull request. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full scripts reference, testing guide, and PR checklist, and [docs/RUNBOOK.md](docs/RUNBOOK.md) for deployment, rollback, and troubleshooting.
 
 </details>
