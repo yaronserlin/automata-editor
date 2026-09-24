@@ -101,7 +101,7 @@ export class LanguagePanel {
 
         const parts = [];
         if (result.alphabet.length > 0) parts.push(`Σ = {${result.alphabet.join(', ')}}`);
-        if (result.kind === 'pattern') parts.push('set-builder form');
+        if (result.kind === 'pattern') parts.push(result.text.includes(' | ') ? 'set-builder form' : 'finite list');
         if (result.kind === 'regex') parts.push('regular expression');
         if (result.note) parts.push(result.note);
         this.metaElement.textContent = parts.join(' · ');
