@@ -7,7 +7,7 @@ Automata Editor is a static web app: plain JavaScript ES modules, no framework, 
 <!-- AUTO-GENERATED: prerequisites (source: package.json devDependencies + node_modules/*/package.json "engines") -->
 | Tool | Version | Why |
 |------|---------|-----|
-| Node.js | `^22.12.0 \|\| ^24.0.0 \|\| >=26.0.0` | Required by `vitest` 5.0.0, the strictest dev dependency (`tailwindcss` 3.4 needs `>=14`) |
+| Node.js | `^22.13.0 \|\| ^24.0.0 \|\| >=26.0.0` | The overlap of `vitest` 5 (`^22.12.0 \|\| ^24.0.0 \|\| >=26.0.0`) and `eslint` 10 (`^20.19.0 \|\| ^22.13.0 \|\| >=24`); also declared in `package.json` `engines`. CI uses Node 22 |
 | npm | bundled with Node | Installs from `package-lock.json` |
 <!-- /AUTO-GENERATED -->
 
@@ -41,11 +41,24 @@ There is no hot reload — refresh the browser after editing. If you are changin
 |---------|------|-------------|
 | `npm run build:css` | `tailwindcss -i ./css/tailwind.css -o ./css/tailwind.generated.css --minify` | Compile Tailwind into the minified stylesheet the page loads |
 | `npm run watch:css` | `tailwindcss -i ./css/tailwind.css -o ./css/tailwind.generated.css --watch` | Recompile on every change (unminified) |
+| `npm run check:css` | `node scripts/check-css.js` | Rebuild the stylesheet into a temp file and fail if the committed `css/tailwind.generated.css` differs (ignores a trailing newline) |
+| `npm run lint` | `eslint .` | Lint all JavaScript with the flat config in `eslint.config.js` |
 | `npm test` | `vitest run` | Run the full test suite once |
 | `npm run test:watch` | `vitest` | Re-run tests as files change |
 <!-- /AUTO-GENERATED -->
 
-`watch:css` writes unminified output to the same file — run `npm run build:css` before committing so the committed stylesheet stays minified.
+`watch:css` writes unminified output to the same file. Run `npm run build:css` before committing so the committed stylesheet stays minified; `npm run check:css` confirms it.
+
+## Continuous integration
+
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every push and pull request, on Ubuntu with Node 22:
+
+1. `npm ci`
+2. `npm run lint`
+3. `npm run check:css`
+4. `npm test`
+
+A red check on a pull request means one of these failed; run the same command locally to see why. CI does not deploy anything. GitHub Pages deploys `main` on its own (see [RUNBOOK.md](RUNBOOK.md)).
 
 ## Project layout
 
@@ -58,6 +71,7 @@ There is no hot reload — refresh the browser after editing. If you are changin
 | `js/geometry/GeometryUtils.js` | Pure helpers: HTML escaping, KaTeX and LaTeX-to-SVG text, snapping, edge path math |
 | `js/interaction/` | `CameraController` (pan/zoom), `SelectionModel` + `EdgeDraftState`, `PointerController` (mouse/touch), `KeyboardController` |
 | `js/rendering/CanvasRenderer.js` | Draws nodes, edges, and alignment guides into the SVG |
+| `js/rendering/KatexLayout.js` | Rewrites KaTeX's positioned layers as normal-flow margins so labels render inside `foreignObject` in Safari; shrinks long node labels |
 | `js/ui/PropertiesPanel.js` | State/transition property editor, with LaTeX preview and error messages |
 | `js/ui/SimulationPanel.js` | Test-input bar: runs, steps through, and explains a simulation |
 | `js/ui/ToastManager.js`, `js/ui/OnboardingHint.js` | Toast notifications and the first-visit hint |
@@ -67,10 +81,15 @@ There is no hot reload — refresh the browser after editing. If you are changin
 | `css/tailwind.css` → `css/tailwind.generated.css` | Tailwind input and its compiled output (committed) |
 | `css/style.css` | Hand-written, non-Tailwind styles |
 | `test/` | Vitest suites |
+| `scripts/check-css.js` | The `check:css` script used locally and in CI |
+| `eslint.config.js` | ESLint flat config: recommended rules, browser globals (plus `katex`) for `js/`, Node globals for tests and scripts |
+| `.github/workflows/ci.yml` | GitHub Actions: install, lint, CSS check, tests |
+| `favicon.ico`, `android-chrome-512x512.png` | Browser tab icon (16/32px) and the large icon used as `apple-touch-icon` |
+| `media/demo.png` | README screenshot, also the social preview image (`og:image`). The demo video is not in the repo; it lives in the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) |
 
 ## Testing
 
-Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`. There is no Vitest config and no DOM library (jsdom/happy-dom) installed, so tests run in plain Node — they can only import modules that don't touch `document`, `window`, or the global `katex`.
+Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`: 96 tests across 11 files. There is no Vitest config and no DOM library (jsdom/happy-dom) installed, so tests run in plain Node — they can only import modules that don't touch `document`, `window`, or the global `katex`.
 
 | File | Covers |
 |------|--------|
@@ -84,6 +103,7 @@ Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`. There is no
 | `test/placement.test.js` | `NodePlacement`: finding free space for new states |
 | `test/camera.test.js` | `CameraController.restore`: clamping a restored zoom to the supported range |
 | `test/edge-draft-safety.test.js` | Edge-draft cancellation on delete and `PointerController` guards for deleted nodes/edges (uses minimal DOM stubs) |
+| `test/katex-layout.test.js` | `KatexLayout`: rewriting KaTeX's relative offsets so labels render inside SVG `foreignObject` in Safari |
 
 The file names predate the current module layout (`export.test.js` covers loading, not exporting). The renderer, properties panel, and file I/O are not covered; `DiagramExporter.toTikzString` is DOM-free and a good candidate for a first new test.
 
@@ -104,7 +124,7 @@ describe('AutomatonGraph', () => {
 
 ## Code style
 
-No linter, formatter, or pre-commit hooks are configured. Match the existing code:
+ESLint (`npm run lint`) runs `@eslint/js` recommended rules, with unused function arguments allowed when prefixed with `_`. There is no formatter or pre-commit hook, so match the existing code:
 
 - ES module classes with JSDoc on classes and public methods; tunable constants as `static UPPER_SNAKE_CASE` fields.
 - 4-space indentation, single quotes, semicolons.
@@ -118,7 +138,7 @@ No linter, formatter, or pre-commit hooks are configured. Match the existing cod
 
 Fork the repository, branch from `main`, and open a pull request against `main`. Merging to `main` deploys to GitHub Pages immediately — see [RUNBOOK.md](RUNBOOK.md).
 
-- [ ] `npm test` passes
+- [ ] `npm run lint`, `npm run check:css`, and `npm test` pass (CI runs the same three)
 - [ ] Changed classes in `index.html` → ran `npm run build:css` and committed `css/tailwind.generated.css`
 - [ ] Tested in a browser over HTTP: create, connect, edit, and delete states and transitions; Save → Load round trip; Download SVG and Download LaTeX
 - [ ] Touched layout → also checked a narrow portrait viewport (below 640px the properties panel moves beneath the canvas)
