@@ -36,11 +36,21 @@ Everything runs locally in your browser. Nothing you draw is uploaded anywhere.
 
 ## Demo
 
-<img src="media/demo.png" alt="Automata Editor interface showing a finite state machine diagram on a light gray canvas. Several labeled circles represent states, with transitions drawn as curved arrows between them and a properties panel on the right. The diagram includes start and accept states, a highlighted selected state, and text labels such as q_0, q_1, and epsilon. The overall tone is clean, technical, and instructional." width="800"/>
+**Desktop:** add a state, connect it, label the transition, then step through and run a test input.
 
-https://github.com/user-attachments/assets/cb3c7477-fa4d-48da-bbd7-4c5d97a5865c
+<img src="https://github.com/user-attachments/assets/76880fde-b690-4c48-919b-13feb69301f8" alt="Automata Editor on desktop: a new state q2 is added and marked accepting, a transition from q1 to q2 is drawn and labeled b, and the input ab is stepped through and accepted." width="800"/>
 
-The screen recording above plays inline on GitHub. It is also available to download from the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) ([MP4, 0.5 MB](https://github.com/yaronserlin/automata-editor/releases/download/demo-media/automata-editor-demo.mp4) or the [original MOV, 5.5 MB](https://github.com/yaronserlin/automata-editor/releases/download/demo-media/automata-editor-demo-original.mov)), so it doesn't add weight to the repository.
+**Mobile:** double-tap to add a state, tap it to make it accepting, and test an input.
+
+<p>
+  <img src="https://github.com/user-attachments/assets/69217285-3fe9-44dc-a1f4-4b6af6671781" alt="Automata Editor on a phone: double-tapping the canvas adds state q2, which is marked accepting, and the input a is accepted." width="280"/>
+  &nbsp;
+  <img src="https://github.com/user-attachments/assets/ea0424e4-fa34-4fa3-be37-6179e88700c4" alt="Automata Editor on a phone screen, with the test input bar, the onboarding hint above the canvas, and the diagram below." width="280"/>
+</p>
+
+<img src="https://github.com/user-attachments/assets/539556e3-f1a2-4b22-b5b3-b6f5a622c4fd" alt="Automata Editor on desktop, showing the toolbar, the test input bar with an accepted run, and a three-state diagram with states q0, q1, and q2." width="800"/>
+
+All demo media, including a video version and the original screen recording, are on the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media), so they don't add weight to the repository.
 
 ## How to use it
 
