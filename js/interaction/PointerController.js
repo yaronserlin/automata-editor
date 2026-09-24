@@ -391,6 +391,13 @@ export class PointerController {
      */
     handleEdgeDragMove(mousePosition) {
         const edge = this.graph.getEdgeById(this.draggedEdgeId);
+        // The edge may have been deleted mid-drag (e.g. the Delete key works while
+        // the mouse button is held down), so drop the gesture instead of throwing.
+        if (!edge) {
+            this.isDraggingEdge = false;
+            this.draggedEdgeId = null;
+            return;
+        }
         const sourceNode = this.graph.getNodeById(edge.sourceId);
         const targetNode = this.graph.getNodeById(edge.targetId);
         if (!sourceNode || !targetNode) return;
@@ -416,6 +423,14 @@ export class PointerController {
      */
     handleEdgeDrawMove(mousePosition) {
         const sourceNode = this.graph.getNodeById(this.edgeDraft.sourceNodeId);
+        // The draft's source node may have been deleted after the draft started
+        // (e.g. a properties-panel delete); cancel the draft instead of throwing
+        // on every pointer move.
+        if (!sourceNode) {
+            this.edgeDraft.cancel();
+            this.tempEdgePathElement.style.display = 'none';
+            return;
+        }
         this.tempEdgePathElement.style.display = 'block';
         const diffX = mousePosition.positionX - sourceNode.positionX;
         const diffY = mousePosition.positionY - sourceNode.positionY;
