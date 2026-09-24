@@ -68,9 +68,15 @@ Every editing action is also reachable without a mouse:
 | `Ctrl`/`Cmd` + `Z` | Undo |
 | `Ctrl`/`Cmd` + `Shift` + `Z`, `Ctrl` + `Y` | Redo |
 
+## Credit / Attribution
+
+Automata Editor is open source under the [MIT License](LICENSE), which already requires keeping the copyright notice in any copy or substantial portion of the code. Beyond that legal baseline, if you use, adapt, or build on this project, please credit **Yaron Serlin** and link back to this repository, for example:
+
+> Built with [Automata Editor](https://github.com/yaronserlin/automata-editor) by Yaron Serlin.
+
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License, copyright (c) 2026 Yaron Serlin. See `LICENSE` for more information, and [Credit / Attribution](#credit--attribution) for how to credit the project when you use it.
 
 ---
 
