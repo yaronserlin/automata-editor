@@ -295,8 +295,20 @@ export class AutomataEditorApp {
         this.dom.loadButton.addEventListener('click', () => this.dom.loadFileInput.click());
         this.dom.loadFileInput.addEventListener('change', event => this.handleLoadFile(event));
         this.dom.saveButton.addEventListener('click', () => this.saveProjectFile());
-        this.dom.exportSvgButton.addEventListener('click', () => DiagramExporter.downloadSvg(this.graph, this.dom.svgElement));
-        this.dom.exportTikzButton.addEventListener('click', () => DiagramExporter.downloadTikz(this.graph));
+        this.dom.exportSvgButton.addEventListener('click', () => {
+            try {
+                DiagramExporter.downloadSvg(this.graph, this.dom.svgElement);
+            } catch (error) {
+                this.toasts.show(`Couldn't export the SVG: ${error.message}`, { type: 'error' });
+            }
+        });
+        this.dom.exportTikzButton.addEventListener('click', () => {
+            try {
+                DiagramExporter.downloadTikz(this.graph);
+            } catch (error) {
+                this.toasts.show(`Couldn't export the LaTeX: ${error.message}`, { type: 'error' });
+            }
+        });
         this.dom.zoomOutButton.addEventListener('click', () => this.camera.changeZoom(-0.1));
         this.dom.zoomInButton.addEventListener('click', () => this.camera.changeZoom(0.1));
         this.dom.undoButton.addEventListener('click', () => this.undo());
