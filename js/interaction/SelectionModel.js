@@ -1,5 +1,5 @@
 import { AutomatonNode } from '../core/AutomatonNode.js';
-import { AutomatonEdge } from '../core/AutomatonEdge.js';
+/** @typedef {import('../core/AutomatonEdge.js').AutomatonEdge} AutomatonEdge */
 
 /**
  * Tracks which node(s) or edge is currently selected in the editor.
