@@ -6,6 +6,10 @@
   <p>
     <a href="https://yaronserlin.github.io/automata-editor/"><strong>▶ Try the live demo</strong></a>
   </p>
+  <p>
+    <a href="https://github.com/yaronserlin/automata-editor/actions/workflows/ci.yml"><img src="https://github.com/yaronserlin/automata-editor/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
+  </p>
 </div>
 
 ---
@@ -27,15 +31,16 @@ Everything runs locally in your browser. Nothing you draw is uploaded anywhere.
 - **Save and reload your work** — your diagram is kept in the browser automatically, and you can export it to a JSON file and load it back in later.
 - **Export to SVG** — a clean, cropped image ready to drop into a document or slide.
 - **Export to LaTeX/TikZ** — ready-to-compile source using the standard `tikz` and `automata` packages, for papers written in LaTeX.
+- **Works on phones and tablets**: double-tap to add states, pinch to zoom, and a layout that stacks the panels on narrow screens.
+- **Built-in help**: the **Help** button lists every mouse, touch, and keyboard action.
 
-## Screenshot
+## Demo
 
 <img src="media/demo.png" alt="Automata Editor interface showing a finite state machine diagram on a light gray canvas. Several labeled circles represent states, with transitions drawn as curved arrows between them and a properties panel on the right. The diagram includes start and accept states, a highlighted selected state, and text labels such as q_0, q_1, and epsilon. The overall tone is clean, technical, and instructional." width="800"/>
 
-<video controls width="800" playsinline muted aria-label="Screen recording of the Automata Editor interface, showing a user creating and editing a state machine diagram in a browser.">
-  <source src="media/demo.mov" type="video/quicktime" />
-  Your browser does not support the video tag.
-</video>
+https://github.com/user-attachments/assets/cb3c7477-fa4d-48da-bbd7-4c5d97a5865c
+
+The screen recording above plays inline on GitHub. It is also available to download from the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) ([MP4, 0.5 MB](https://github.com/yaronserlin/automata-editor/releases/download/demo-media/automata-editor-demo.mp4) or the [original MOV, 5.5 MB](https://github.com/yaronserlin/automata-editor/releases/download/demo-media/automata-editor-demo-original.mov)), so it doesn't add weight to the repository.
 
 ## How to use it
 
@@ -50,6 +55,14 @@ Everything runs locally in your browser. Nothing you draw is uploaded anywhere.
 9. **Undo mistakes** — `Ctrl`/`Cmd` + `Z` to undo, `Ctrl`/`Cmd` + `Shift` + `Z` (or `Ctrl` + `Y`) to redo.
 10. **Save your work** — click **Save** to download a project file; click **Load** to bring it back later.
 11. **Export a finished diagram** — **Download SVG** for an image, or **Download LaTeX** for TikZ source.
+12. **Stuck?** Click **Help** for the full list of actions.
+
+### On a phone or tablet
+
+- **Add a state:** double-tap the canvas.
+- **Connect two states:** double-tap a state, keep your finger down, and drag to the target; or lift and tap the target.
+- **Edit or move:** tap a state or transition to edit it; drag a state to move it.
+- **Pan and zoom:** pinch to zoom, move two fingers together to pan.
 
 ### Keyboard shortcuts
 
@@ -87,11 +100,11 @@ Distributed under the MIT License, copyright (c) 2026 Yaron Serlin. See `LICENSE
 
 The app is plain JavaScript (ES modules, no framework, no bundler) with Tailwind CSS compiled ahead of time. Its source is organized by responsibility: `js/core` (the automaton data model), `js/geometry` (pure math/text helpers), `js/interaction` (camera, selection, mouse/touch, and keyboard controllers), `js/rendering` (SVG drawing), `js/ui` (the properties panel), and `js/io` (save/load and SVG/TikZ export), composed together in `js/AutomataEditorApp.js`.
 
-**Setup:**
+**Setup** (Node.js 22.13+ or 24+):
 ```bash
 git clone https://github.com/yaronserlin/automata-editor.git
 cd automata-editor
-npm install
+npm ci
 npm run build:css   # regenerate css/tailwind.generated.css after editing index.html's classes
 ```
 
@@ -102,11 +115,13 @@ npx serve .
 ```
 Then open the printed `localhost` URL in your browser.
 
-**Test it:**
+**Check it:**
 ```bash
-npm test
+npm run lint        # ESLint
+npm run check:css   # fails if css/tailwind.generated.css is out of date
+npm test            # Vitest: 96 tests
 ```
-The Vitest suite covers the automaton model (state/transition creation and validation), the pure geometry and text-escaping helpers, and the selection-cycling logic.
+The Vitest suite (96 tests) covers the automaton model and project-file validation, the input simulator, undo/redo history, autosave, state placement, camera zoom limits, KaTeX layout, edge-drawing safety, and the geometry and text-escaping helpers. [GitHub Actions](https://github.com/yaronserlin/automata-editor/actions/workflows/ci.yml) runs all three checks on every push and pull request.
 
 **Contributing:** fork the project, create a feature branch, and open a pull request. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full scripts reference, testing guide, and PR checklist, and [docs/RUNBOOK.md](docs/RUNBOOK.md) for deployment, rollback, and troubleshooting.
 
