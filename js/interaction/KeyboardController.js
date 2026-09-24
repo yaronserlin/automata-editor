@@ -121,6 +121,11 @@ export class KeyboardController {
     }
 
     deleteSelection() {
+        // A delete can land while a transition is being drawn (the draft's source
+        // node stays selectable). Without this, the draft would keep pointing at a
+        // node that no longer exists and every pointer move would throw.
+        this.edgeDraft.cancel();
+        this.tempEdgePathElement.style.display = 'none';
         if (this.selectionModel.selectedNodeIds.size > 0) {
             const count = this.selectionModel.selectedNodeIds.size;
             this.selectionModel.selectedNodeIds.forEach(id => this.graph.deleteNode(id));
