@@ -614,4 +614,4 @@ export class AutomataEditorApp {
         };
         this.camera.fitToContent(bounds, this.dom.svgElement.clientWidth, this.dom.svgElement.clientHeight);
     }
-            }
+}
