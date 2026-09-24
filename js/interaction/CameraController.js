@@ -88,6 +88,9 @@ export class CameraController {
 
     /**
      * Restores a previously saved camera state, such as one loaded from a project file.
+     * The zoom is clamped to the supported range: a hand-edited or corrupt file can
+     * carry 0, a negative value, or a huge one, which would produce an invalid viewBox
+     * (e.g. infinite dimensions at zoom 0) and a blank canvas.
      * @param {number} panPositionX
      * @param {number} panPositionY
      * @param {number} zoom
@@ -95,7 +98,7 @@ export class CameraController {
     restore(panPositionX, panPositionY, zoom) {
         this.panPositionX = panPositionX;
         this.panPositionY = panPositionY;
-        this.zoom = zoom;
+        this.zoom = Math.min(CameraController.MAX_ZOOM, Math.max(CameraController.MIN_ZOOM, zoom));
         this.zoomDisplayElement.textContent = `${Math.round(this.zoom * 100)}%`;
         this.updateViewBox();
     }
