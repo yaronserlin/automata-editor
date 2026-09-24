@@ -10,22 +10,21 @@ Automata Editor is a static site: no backend, no database, no environment variab
 | Host | GitHub Pages |
 | URL | <https://yaronserlin.github.io/automata-editor/> |
 | Source | branch `main`, folder `/` (repository root) |
-| Runtime dependency | KaTeX 0.16.8 from `cdn.jsdelivr.net` |
+| Runtime dependency | KaTeX 0.16.8 from `cdn.jsdelivr.net` (pinned with Subresource Integrity hashes) |
+| Demo media | README GIFs, screenshots, and videos are not served by Pages. They are hosted on the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) |
 <!-- /AUTO-GENERATED -->
 
 ## Deploying
 
 1. Start from an up-to-date `main` with a clean working tree.
-2. Install and test:
+2. Install and run the same checks as CI:
    ```bash
    npm ci
+   npm run lint
+   npm run check:css   # if this fails: npm run build:css, then commit css/tailwind.generated.css
    npm test
    ```
-3. Rebuild the stylesheet and confirm it did not change. Any output from `git status` means the committed CSS was stale — commit it.
-   ```bash
-   npm run build:css
-   git status --short css/tailwind.generated.css
-   ```
+3. On GitHub, confirm the [CI workflow](https://github.com/yaronserlin/automata-editor/actions/workflows/ci.yml) is green for the branch or pull request. CI only checks; it does not deploy.
 4. Push (or merge the pull request) to `main`. Pages starts a build automatically.
 5. Confirm the build finished for your commit — expect `"status": "built"` and a `commit` equal to `git rev-parse HEAD`:
    ```bash
@@ -62,6 +61,9 @@ Every line should start with `200`. Then open the site in a browser and check th
 | Load alerts "Invalid project file structure." | Valid JSON, but `AutomatonGraph.fromRaw` rejected its top-level shape | Compare against a freshly saved project file |
 | Load alerts "Loaded with N invalid node/edge entries skipped." | Malformed states, or transitions referencing missing states, were dropped | The rest of the diagram loaded; fix or remove those entries in the JSON |
 | `npm ci` warns `EBADENGINE`, or `npm test` fails at startup | Node version older than Vitest 5 supports | Use Node `^22.12.0`, `^24`, or `>=26` |
+| CI fails at **Check committed CSS is up to date** | `index.html` classes changed but `css/tailwind.generated.css` was not rebuilt | `npm run build:css` and commit the result |
+| CI fails at **Lint** | ESLint found a problem (often an unused import or variable) | Run `npm run lint` locally and fix the reported lines |
+| Demo GIFs or screenshots missing from the README | They are GitHub user attachments and only load on github.com | View them on the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) |
 | A new deploy isn't visible | Pages build still running or failed, or a cached response | Check the build (Deploying, step 5), then hard-refresh |
 
 ## Rollback
@@ -79,7 +81,8 @@ To take the site offline entirely in an emergency, unpublish it from the reposit
 
 ## Monitoring, alerting, and escalation
 
-- **Monitoring:** none — no analytics, error reporting, or uptime checks. Use the smoke test above on demand.
+- **Monitoring:** none. No analytics, error reporting, or uptime checks. Use the smoke test above on demand.
+- **CI:** [GitHub Actions](https://github.com/yaronserlin/automata-editor/actions/workflows/ci.yml) runs lint, the CSS check, and tests on every push and pull request. GitHub emails the pusher when a run fails.
 - **Build status:** `gh api repos/yaronserlin/automata-editor/pages/builds/latest`, or **Settings → Pages** in the repository.
 - **Alerting:** none configured.
 - **Escalation:** the repository owner, [@yaronserlin](https://github.com/yaronserlin).
