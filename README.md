@@ -26,6 +26,7 @@ Everything runs locally in your browser. Nothing you draw is uploaded anywhere.
 - **Math-aware labels** — state names and transition labels render live with KaTeX, so `q_0` and `\epsilon` look the way they would in a textbook.
 - **Automatic layout smarts** — overlapping transitions curve apart automatically, dragged states snap into alignment with their neighbors.
 - **Test your automaton** — type an input string and see whether it is accepted, or step through it symbol by symbol while the active states light up. Works for DFAs and NFAs, including ε-transitions.
+- **See the language it accepts** — open **Language L(M)** under the test bar to see L(M) worked out for you. Block-shaped languages are written in set-builder notation, e.g. `L = { a^n b^m | 1 ≤ n ≤ 4, m = 2n }`; any other automaton gets a regular expression. It updates as you edit and copies as LaTeX.
 - **Never lose work** — the diagram is autosaved in your browser, with undo/redo (`Ctrl`/`Cmd` + `Z`) for every change.
 - **Full keyboard support** — every action (create, select, connect, reshape, delete) has a keyboard shortcut, for accessibility or just speed. See [Keyboard shortcuts](#keyboard-shortcuts) below.
 - **Save and reload your work** — your diagram is kept in the browser automatically, and you can export it to a JSON file and load it back in later.
@@ -129,9 +130,9 @@ Then open the printed `localhost` URL in your browser.
 ```bash
 npm run lint        # ESLint
 npm run check:css   # fails if css/tailwind.generated.css is out of date
-npm test            # Vitest: 96 tests
+npm test            # Vitest: 110 tests
 ```
-The Vitest suite (96 tests) covers the automaton model and project-file validation, the input simulator, undo/redo history, autosave, state placement, camera zoom limits, KaTeX layout, edge-drawing safety, and the geometry and text-escaping helpers. [GitHub Actions](https://github.com/yaronserlin/automata-editor/actions/workflows/ci.yml) runs all three checks on every push and pull request.
+The Vitest suite (110 tests) covers the automaton model and project-file validation, the input simulator, the language analyzer, undo/redo history, autosave, state placement, camera zoom limits, KaTeX layout, edge-drawing safety, and the geometry and text-escaping helpers. [GitHub Actions](https://github.com/yaronserlin/automata-editor/actions/workflows/ci.yml) runs all three checks on every push and pull request.
 
 **Contributing:** fork the project, create a feature branch, and open a pull request. See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the full scripts reference, testing guide, and PR checklist, and [docs/RUNBOOK.md](docs/RUNBOOK.md) for deployment, rollback, and troubleshooting.
 
