@@ -156,11 +156,15 @@ export class AutomataEditorApp {
         });
         // The simulation result row and the mobile properties panel change the space left
         // for the canvas without a window resize, so watch the canvas area itself too.
+        // The panel is watched as well: its content settles (and can keep changing, e.g.
+        // LaTeX previews) after it opens, and its final height decides the canvas size.
         if (typeof ResizeObserver === 'function') {
-            new ResizeObserver(() => {
+            const canvasSpaceObserver = new ResizeObserver(() => {
                 this.applyCanvasLetterboxSizing();
                 this.camera.updateViewBox();
-            }).observe(this.dom.canvasContainerElement.parentElement);
+            });
+            canvasSpaceObserver.observe(this.dom.canvasContainerElement.parentElement);
+            canvasSpaceObserver.observe(this.dom.propertiesPanelElement);
         }
 
         if (!this.restoreAutosave()) this.seedExampleDiagram();
