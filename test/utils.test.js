@@ -102,3 +102,51 @@ describe('GeometryUtils.computeEdgePathAndLabelPosition', () => {
         expect(labelPositionX).toBeCloseTo(node.positionX, 5);
     });
 });
+
+describe('GeometryUtils.getLatexError', () => {
+    /** Installs a fake global katex that throws the given KaTeX-style message. */
+    function withFakeKatex(errorMessage, callback) {
+        const previous = globalThis.katex;
+        globalThis.katex = {
+            renderToString(text) {
+                if (errorMessage && text.includes('BAD')) throw new Error(errorMessage);
+                return '<span></span>';
+            }
+        };
+        try {
+            callback();
+        } finally {
+            if (previous === undefined) delete globalThis.katex;
+            else globalThis.katex = previous;
+        }
+    }
+
+    it('returns null when KaTeX is not loaded', () => {
+        expect(GeometryUtils.getLatexError('\\frac{')).toBeNull();
+    });
+
+    it('returns null for valid or empty labels', () => {
+        withFakeKatex('KaTeX parse error: whatever', () => {
+            expect(GeometryUtils.getLatexError('q_{0}')).toBeNull();
+            expect(GeometryUtils.getLatexError('')).toBeNull();
+        });
+    });
+
+    it('explains an unclosed brace in plain words', () => {
+        withFakeKatex("KaTeX parse error: Expected '}', got 'EOF' at end of input: BAD", () => {
+            expect(GeometryUtils.getLatexError('BAD')).toBe('Invalid LaTeX: a { is never closed. Add the missing }.');
+        });
+    });
+
+    it('names an unknown command', () => {
+        withFakeKatex('KaTeX parse error: Undefined control sequence: \\foo at position 1: BAD', () => {
+            expect(GeometryUtils.getLatexError('BAD')).toMatch(/unknown command \\foo/);
+        });
+    });
+
+    it('checks every line of a multi-line label', () => {
+        withFakeKatex("KaTeX parse error: Expected 'EOF', got '}' at position 2: BAD", () => {
+            expect(GeometryUtils.getLatexError('a, b\nBAD')).toMatch(/extra \}/);
+        });
+    });
+});

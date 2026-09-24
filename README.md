@@ -21,8 +21,10 @@ Everything runs locally in your browser. Nothing you draw is uploaded anywhere.
 - **Click-to-build canvas** — double-click to add a state, drag to connect or reposition, drag empty space to multi-select.
 - **Math-aware labels** — state names and transition labels render live with KaTeX, so `q_0` and `\epsilon` look the way they would in a textbook.
 - **Automatic layout smarts** — overlapping transitions curve apart automatically, dragged states snap into alignment with their neighbors.
+- **Test your automaton** — type an input string and see whether it is accepted, or step through it symbol by symbol while the active states light up. Works for DFAs and NFAs, including ε-transitions.
+- **Never lose work** — the diagram is autosaved in your browser, with undo/redo (`Ctrl`/`Cmd` + `Z`) for every change.
 - **Full keyboard support** — every action (create, select, connect, reshape, delete) has a keyboard shortcut, for accessibility or just speed. See [Keyboard shortcuts](#keyboard-shortcuts) below.
-- **Save and reload your work** — export your diagram to a JSON file and load it back in later.
+- **Save and reload your work** — your diagram is kept in the browser automatically, and you can export it to a JSON file and load it back in later.
 - **Export to SVG** — a clean, cropped image ready to drop into a document or slide.
 - **Export to LaTeX/TikZ** — ready-to-compile source using the standard `tikz` and `automata` packages, for papers written in LaTeX.
 
@@ -38,14 +40,16 @@ Everything runs locally in your browser. Nothing you draw is uploaded anywhere.
 ## How to use it
 
 1. **Add a state** — double-click anywhere on the canvas.
-2. **Connect two states** — hold `Shift` and drag from one state to another, or double-click a state and drag to its target.
+2. **Connect two states** — hold `Shift` and drag from one state to another, or double-click a state and then drag to (or click) its target.
 3. **Edit a state or transition** — click it; a panel opens where you can rename it, mark it as a start/accept state, or edit its label.
 4. **Reshape a transition** — drag its label to bend the curve, or drag a self-loop to rotate it.
 5. **Move things around** — drag a state to reposition it; drag an empty area to box-select several states at once.
 6. **Pan and zoom** — `Alt` + drag (or the middle mouse button) to pan; `Ctrl`/`Cmd` + scroll, or the on-canvas buttons, to zoom.
 7. **Delete something** — select it and press `Delete` or `Backspace`.
-8. **Save your work** — click **Save** to download a project file; click **Load** to bring it back later.
-9. **Export a finished diagram** — **Download SVG** for an image, or **Download LaTeX** for TikZ source.
+8. **Test an input** — type a string in **Test input** and press `Enter` (or **Run**); use the step and play buttons to watch the run one symbol at a time.
+9. **Undo mistakes** — `Ctrl`/`Cmd` + `Z` to undo, `Ctrl`/`Cmd` + `Shift` + `Z` (or `Ctrl` + `Y`) to redo.
+10. **Save your work** — click **Save** to download a project file; click **Load** to bring it back later.
+11. **Export a finished diagram** — **Download SVG** for an image, or **Download LaTeX** for TikZ source.
 
 ### Keyboard shortcuts
 
@@ -61,6 +65,8 @@ Every editing action is also reachable without a mouse:
 | `0` | Reset the selected transition's shape |
 | `Escape` | Cancel a transition in progress, or clear the selection |
 | `Delete` / `Backspace` | Delete the current selection |
+| `Ctrl`/`Cmd` + `Z` | Undo |
+| `Ctrl`/`Cmd` + `Shift` + `Z`, `Ctrl` + `Y` | Redo |
 
 ## License
 

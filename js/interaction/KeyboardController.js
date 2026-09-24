@@ -1,5 +1,6 @@
 import { AutomatonNode } from '../core/AutomatonNode.js';
 import { AutomatonEdge } from '../core/AutomatonEdge.js';
+import { NodePlacement } from '../geometry/NodePlacement.js';
 
 /**
  * Provides full keyboard-only control of the diagram: creating, selecting, moving,
@@ -20,8 +21,12 @@ export class KeyboardController {
      * @param {() => void} dependencies.openPropertiesPanel
      * @param {() => void} dependencies.closePropertiesPanel
      * @param {(message: string) => void} dependencies.announce
+     * @param {() => void} [dependencies.undo]
+     * @param {() => void} [dependencies.redo]
+     * @param {(description: string) => void} [dependencies.onDeleted] Called after a keyboard delete,
+     *   so the app can offer a quick Undo instead of a confirmation dialog.
      */
-    constructor({ graph, selectionModel, cameraController, edgeDraft, tempEdgePathElement, requestRender, openPropertiesPanel, closePropertiesPanel, announce }) {
+    constructor({ graph, selectionModel, cameraController, edgeDraft, tempEdgePathElement, requestRender, openPropertiesPanel, closePropertiesPanel, announce, undo = () => {}, redo = () => {}, onDeleted = () => {} }) {
         this.graph = graph;
         this.selectionModel = selectionModel;
         this.cameraController = cameraController;
@@ -31,6 +36,9 @@ export class KeyboardController {
         this.openPropertiesPanel = openPropertiesPanel;
         this.closePropertiesPanel = closePropertiesPanel;
         this.announce = announce;
+        this.undo = undo;
+        this.redo = redo;
+        this.onDeleted = onDeleted;
 
         window.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
@@ -39,7 +47,25 @@ export class KeyboardController {
      * @param {KeyboardEvent} event
      */
     handleKeyDown(event) {
+        // A modal dialog (Help) owns the keyboard while it is open.
+        if (document.querySelector('dialog[open]')) return;
         const isEditingField = event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA';
+        const hasCommandModifier = event.ctrlKey || event.metaKey;
+
+        if (hasCommandModifier && !event.altKey) {
+            // Inside a text field, leave Ctrl+Z to the browser's own text undo.
+            if (isEditingField) return;
+            const key = event.key.toLowerCase();
+            if (key === 'z' && !event.shiftKey) {
+                event.preventDefault();
+                this.undo();
+            } else if ((key === 'z' && event.shiftKey) || key === 'y') {
+                event.preventDefault();
+                this.redo();
+            }
+            // Any other Ctrl/Cmd shortcut (browser zoom, new window, ...) belongs to the browser.
+            return;
+        }
 
         if (event.key === 'Delete' || event.key === 'Backspace') {
             if (isEditingField) return;
@@ -96,20 +122,26 @@ export class KeyboardController {
 
     deleteSelection() {
         if (this.selectionModel.selectedNodeIds.size > 0) {
+            const count = this.selectionModel.selectedNodeIds.size;
             this.selectionModel.selectedNodeIds.forEach(id => this.graph.deleteNode(id));
             this.selectionModel.clear();
             this.requestRender();
+            const description = count === 1 ? 'Deleted 1 state' : `Deleted ${count} states`;
+            this.announce(description);
+            this.onDeleted(description);
         } else if (this.selectionModel.selectedElement && this.selectionModel.selectedElement.type === 'edge') {
             this.graph.deleteEdge(this.selectionModel.selectedElement.id);
             this.selectionModel.clear();
             this.requestRender();
+            this.announce('Deleted transition');
+            this.onDeleted('Deleted transition');
         }
     }
 
     createNodeAtViewCenter() {
         const center = this.cameraController.getViewCenter();
-        const cascade = (this.graph.nextNodeIndex % 6) * 18;
-        const newNode = this.graph.addNode(center.positionX + cascade, center.positionY + cascade);
+        const position = NodePlacement.findFreePosition(this.graph, center);
+        const newNode = this.graph.addNode(position.positionX, position.positionY);
         this.selectionModel.selectSingleNode(newNode.id);
         this.openPropertiesPanel();
         this.requestRender();
@@ -148,7 +180,7 @@ export class KeyboardController {
 
     startEdgeDraft() {
         const sourceId = [...this.selectionModel.selectedNodeIds][0];
-        this.edgeDraft.start(sourceId);
+        this.edgeDraft.start(sourceId, 'keyboard');
         this.tempEdgePathElement.style.display = 'none';
         this.requestRender();
         this.announce('Drawing edge. Use bracket keys to choose a target node, Enter to connect, Escape to cancel.');

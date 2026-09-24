@@ -124,3 +124,299 @@ svg {
     outline: 3px solid #2563eb;
     outline-offset: -3px;
 }
+
+/* ---------- Keyboard key hints ---------- */
+
+kbd {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0 0.35em;
+    border: 1px solid #cbd5e1;
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: #f8fafc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8em;
+    line-height: 1.5;
+    text-align: center;
+    color: #334155;
+}
+
+/* ---------- Simulation ---------- */
+
+.sim-type-badge:empty {
+    display: none;
+}
+
+.sim-type-badge {
+    padding: 0 0.4em;
+    border-radius: 9999px;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    cursor: help;
+}
+
+.sim-icon-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: transparent;
+}
+
+.sim-output {
+    margin-top: 0.375rem;
+}
+
+.sim-output:not(:has(> :not(:empty))) {
+    display: none;
+}
+
+.sim-tape:empty,
+.sim-status:empty {
+    display: none;
+}
+
+.sim-tape {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    max-width: 100%;
+}
+
+.sim-symbol {
+    min-width: 1.5rem;
+    padding: 0 0.3rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #fff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
+    line-height: 1.5rem;
+    text-align: center;
+    color: #0f172a;
+}
+
+.sim-symbol-read {
+    color: #94a3b8;
+    background: #f1f5f9;
+}
+
+.sim-symbol-current {
+    border-color: #f59e0b;
+    background: #fef3c7;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px #f59e0b;
+}
+
+.sim-symbol-stuck {
+    border-color: #dc2626;
+    background: #fee2e2;
+    box-shadow: 0 0 0 1px #dc2626;
+}
+
+.sim-symbol-empty {
+    font-style: italic;
+    color: #64748b;
+}
+
+.sim-status {
+    font-size: 0.85rem;
+    color: #334155;
+}
+
+.sim-status-accepted {
+    color: #15803d;
+}
+
+.sim-status-rejected,
+.sim-status-error {
+    color: #b91c1c;
+}
+
+.sim-state-name .katex {
+    font-size: 1em;
+}
+
+.node.sim-active .node-circle {
+    fill: #fef3c7;
+    stroke: #f59e0b;
+    stroke-width: 4;
+}
+
+.node.sim-active.sim-accepted .node-circle {
+    fill: #dcfce7;
+    stroke: #16a34a;
+}
+
+.node.sim-active.sim-rejected .node-circle {
+    fill: #fee2e2;
+    stroke: #dc2626;
+}
+
+.edge.sim-taken .edge-path {
+    stroke: #f59e0b;
+    stroke-width: 3.5;
+}
+
+/* ---------- On-canvas hint and edge-drawing banner ---------- */
+
+.onboarding-hint,
+.edge-draft-banner {
+    position: absolute;
+    top: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25;
+    width: max-content;
+    max-width: calc(100% - 1rem);
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    line-height: 1.35;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.onboarding-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #1e293b;
+    color: #f8fafc;
+}
+
+.onboarding-hint.hidden,
+.edge-draft-banner.hidden {
+    display: none;
+}
+
+.onboarding-link {
+    flex-shrink: 0;
+    color: #93c5fd;
+    text-decoration: underline;
+    white-space: nowrap;
+}
+
+.onboarding-close {
+    flex-shrink: 0;
+    font-size: 1.2rem;
+    line-height: 1;
+    color: #cbd5e1;
+}
+
+.onboarding-close:hover,
+.onboarding-link:hover {
+    color: #fff;
+}
+
+.edge-draft-banner {
+    background: #fffbeb;
+    border: 1px solid #f59e0b;
+    color: #78350f;
+    pointer-events: none;
+}
+
+.edge-draft-banner .katex {
+    font-size: 1em;
+}
+
+/* ---------- Toasts ---------- */
+
+.toast-container {
+    position: fixed;
+    left: 50%;
+    bottom: 1rem;
+    transform: translateX(-50%);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: max-content;
+    max-width: calc(100vw - 1.5rem);
+    pointer-events: none;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.5rem;
+    background: #1e293b;
+    color: #f8fafc;
+    font-size: 0.875rem;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+    pointer-events: auto;
+    animation: toastIn 0.18s ease-out;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.toast-leaving {
+    opacity: 0;
+    transform: translateY(6px);
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.toast-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: #475569;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.toast-success .toast-icon {
+    background: #16a34a;
+}
+
+.toast-error {
+    background: #7f1d1d;
+}
+
+.toast-error .toast-icon {
+    background: #dc2626;
+}
+
+.toast-action {
+    flex-shrink: 0;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.25rem;
+    background: rgba(255, 255, 255, 0.15);
+    font-weight: 600;
+    color: #fff;
+}
+
+.toast-action:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.toast-close {
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    line-height: 1;
+    color: #cbd5e1;
+}
+
+/* ---------- Help dialog ---------- */
+
+.help-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toast,
+    .node.drawing-edge .node-circle {
+        animation: none;
+    }
+}

@@ -12,8 +12,10 @@ export class CanvasRenderer {
      * @param {import('../interaction/SelectionModel.js').SelectionModel} selectionModel
      * @param {import('../interaction/SelectionModel.js').EdgeDraftState} edgeDraft
      * @param {import('../interaction/PointerController.js').PointerController} pointerController
+     * @param {() => ({stateIds: Set<string>, edgeIds: Set<string>, outcome: 'accepted'|'rejected'|null}|null)} [getSimulationHighlight]
+     *   Returns the simulation step to highlight, or null when no simulation is shown.
      */
-    constructor(layers, graph, selectionModel, edgeDraft, pointerController) {
+    constructor(layers, graph, selectionModel, edgeDraft, pointerController, getSimulationHighlight = () => null) {
         this.nodesLayerElement = layers.nodesLayerElement;
         this.edgesLayerElement = layers.edgesLayerElement;
         this.guidesLayerElement = layers.guidesLayerElement;
@@ -21,12 +23,15 @@ export class CanvasRenderer {
         this.selectionModel = selectionModel;
         this.edgeDraft = edgeDraft;
         this.pointerController = pointerController;
+        this.getSimulationHighlight = getSimulationHighlight;
+        this.currentHighlight = null;
     }
 
     /**
      * Re-renders every layer of the canvas from the current graph and selection state.
      */
     render() {
+        this.currentHighlight = this.getSimulationHighlight();
         this.renderNodes();
         this.renderEdges();
         this.renderGuides();
@@ -140,7 +145,7 @@ export class CanvasRenderer {
         const isDrawingLineFromHere = this.edgeDraft.active && this.edgeDraft.sourceNodeId === node.id;
 
         const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        group.setAttribute('class', `node ${isSelected ? 'selected' : ''} ${isDrawingLineFromHere ? 'drawing-edge' : ''}`);
+        group.setAttribute('class', ['node', isSelected ? 'selected' : '', isDrawingLineFromHere ? 'drawing-edge' : '', this.getNodeSimulationClass(node)].filter(Boolean).join(' '));
         group.setAttribute('transform', `translate(${node.positionX}, ${node.positionY})`);
         group.dataset.id = node.id;
 
@@ -169,6 +174,18 @@ export class CanvasRenderer {
         group.addEventListener('touchcancel', event => this.pointerController.handleNodeMouseUp(event, node.id));
 
         return group;
+    }
+
+    /**
+     * @param {AutomatonNode} node
+     * @returns {string} The simulation highlight class for a node, or '' when it is not active.
+     */
+    getNodeSimulationClass(node) {
+        const highlight = this.currentHighlight;
+        if (!highlight || !highlight.stateIds.has(node.id)) return '';
+        if (highlight.outcome === 'accepted' && node.isAccept) return 'sim-active sim-accepted';
+        if (highlight.outcome === 'rejected') return 'sim-active sim-rejected';
+        return 'sim-active';
     }
 
     renderNodes() {
@@ -234,7 +251,8 @@ export class CanvasRenderer {
         const { pathData, labelPositionX, labelPositionY } = GeometryUtils.computeEdgePathAndLabelPosition(edge, sourceNode, targetNode);
 
         const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        group.setAttribute('class', `edge ${isSelected ? 'selected' : ''}`);
+        const isSimulationEdge = Boolean(this.currentHighlight && this.currentHighlight.edgeIds.has(edge.id));
+        group.setAttribute('class', ['edge', isSelected ? 'selected' : '', isSimulationEdge ? 'sim-taken' : ''].filter(Boolean).join(' '));
         group.dataset.id = edge.id;
         group.dataset.labelX = labelPositionX;
         group.dataset.labelY = labelPositionY;
