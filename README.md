@@ -34,6 +34,7 @@ Everything runs locally in your browser. Nothing you draw is uploaded anywhere.
 - **Export to LaTeX/TikZ** — ready-to-compile source using the standard `tikz` and `automata` packages, for papers written in LaTeX.
 - **Works on phones and tablets**: double-tap to add states, pinch to zoom, and a layout that stacks the panels on narrow screens.
 - **Built-in help**: the **Help** button lists every mouse, touch, and keyboard action.
+- **Accessibility menu**: the **Accessibility** button in the toolbar lets you enlarge text (up to 150%), turn on high contrast, and underline links. Your choice is remembered in the browser.
 
 ## Demo
 
