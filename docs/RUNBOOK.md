@@ -11,7 +11,7 @@ Automata Editor is a static site: no backend, no database, no environment variab
 | URL | <https://yaronserlin.github.io/automata-editor/> |
 | Source | branch `main`, folder `/` (repository root) |
 | Runtime dependency | KaTeX 0.16.8 from `cdn.jsdelivr.net` (pinned with Subresource Integrity hashes) |
-| Demo video | Not served by Pages. Hosted as assets on the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) |
+| Demo media | README GIFs, screenshots, and videos are not served by Pages. They are hosted on the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) |
 <!-- /AUTO-GENERATED -->
 
 ## Deploying
@@ -63,7 +63,7 @@ Every line should start with `200`. Then open the site in a browser and check th
 | `npm ci` warns `EBADENGINE`, or `npm test` fails at startup | Node version older than Vitest 5 supports | Use Node `^22.12.0`, `^24`, or `>=26` |
 | CI fails at **Check committed CSS is up to date** | `index.html` classes changed but `css/tailwind.generated.css` was not rebuilt | `npm run build:css` and commit the result |
 | CI fails at **Lint** | ESLint found a problem (often an unused import or variable) | Run `npm run lint` locally and fix the reported lines |
-| Demo video in the README doesn't play | The video is a GitHub user attachment and only plays on github.com | Use the download links to the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) |
+| Demo GIFs or screenshots missing from the README | They are GitHub user attachments and only load on github.com | View them on the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) |
 | A new deploy isn't visible | Pages build still running or failed, or a cached response | Check the build (Deploying, step 5), then hard-refresh |
 
 ## Rollback
