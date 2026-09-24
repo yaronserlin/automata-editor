@@ -11,6 +11,7 @@ import { ProjectFile, DiagramExporter } from './io/ProjectIO.js';
 import { AutosaveStore } from './io/AutosaveStore.js';
 import { HistoryManager } from './core/HistoryManager.js';
 import { SimulationPanel } from './ui/SimulationPanel.js';
+import { LanguagePanel } from './ui/LanguagePanel.js';
 import { ToastManager } from './ui/ToastManager.js';
 import { OnboardingHint } from './ui/OnboardingHint.js';
 
@@ -146,6 +147,18 @@ export class AutomataEditorApp {
             () => this.onboardingHint.observeSimulationRun()
         );
 
+        this.languagePanel = new LanguagePanel(
+            {
+                toggleButton: this.dom.langToggleButton,
+                outputElement: this.dom.langOutput,
+                expressionElement: this.dom.langExpression,
+                metaElement: this.dom.langMeta,
+                copyButton: this.dom.langCopyButton
+            },
+            this.graph,
+            message => this.announce(message)
+        );
+
         this.bindToolbar();
         this.bindHelpDialog();
         this.bindUnloadWarning();
@@ -170,6 +183,7 @@ export class AutomataEditorApp {
         if (!this.restoreAutosave()) this.seedExampleDiagram();
         this.history.reset(this.graph.toSnapshot());
         this.simulationPanel.invalidate();
+        this.languagePanel.invalidate();
         this.updateUndoButtons();
         this.onboardingHint.start(this.diagramCounts);
     }
@@ -291,7 +305,12 @@ export class AutomataEditorApp {
             simResetButton: document.getElementById('sim-reset-button'),
             simTape: document.getElementById('sim-tape'),
             simStatus: document.getElementById('sim-status'),
-            simTypeBadge: document.getElementById('sim-type-badge')
+            simTypeBadge: document.getElementById('sim-type-badge'),
+            langToggleButton: document.getElementById('lang-toggle-button'),
+            langOutput: document.getElementById('lang-output'),
+            langExpression: document.getElementById('lang-expression'),
+            langMeta: document.getElementById('lang-meta'),
+            langCopyButton: document.getElementById('lang-copy-button')
         };
     }
 
@@ -464,6 +483,7 @@ export class AutomataEditorApp {
         this.hasUnsavedFileChanges = true;
         this.autosave.save(this.graph, this.camera);
         this.simulationPanel.invalidate();
+        this.languagePanel.invalidate();
         this.onboardingHint.observeDiagram(this.diagramCounts);
         this.updateUndoButtons();
     }
@@ -511,6 +531,7 @@ export class AutomataEditorApp {
         this.hasUnsavedFileChanges = true;
         this.autosave.save(this.graph, this.camera);
         this.simulationPanel.invalidate();
+        this.languagePanel.invalidate();
         this.updateUndoButtons();
     }
 
