@@ -439,3 +439,16 @@ kbd {
         animation: none;
     }
 }
+
+/* When main's content overflows (on small screens: canvas plus an open
+   properties panel), plain `justify-content: center` clips the overflow at
+   the top, hiding the top of the diagram behind the onboarding hint bar with
+   no way to scroll to it. Safe centering keeps normal centering when content
+   fits, but aligns to the start on overflow, so the diagram always stays
+   below the hint bar and the panel scrolls into view instead. Browsers
+   without safe-alignment support keep the previous centering. */
+@supports (justify-content: safe center) {
+    main.justify-center {
+        justify-content: safe center;
+    }
+}
