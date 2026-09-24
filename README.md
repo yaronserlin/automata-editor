@@ -24,6 +24,7 @@ Everything runs locally in your browser. Nothing you draw is uploaded anywhere.
 
 - **Click-to-build canvas** — double-click to add a state, drag to connect or reposition, drag empty space to multi-select.
 - **Math-aware labels** — state names and transition labels render live with KaTeX, so `q_0` and `\epsilon` look the way they would in a textbook.
+- **Quick-symbol picker** — under the transition label, one click inserts ε, ∅, Σ, δ, a subscript, or a digit 0-9. A **Recent** row learns the symbols you type on your own transitions (kept in your browser) so you can reuse them with one click.
 - **Automatic layout smarts** — overlapping transitions curve apart automatically, dragged states snap into alignment with their neighbors.
 - **Test your automaton** — type an input string and see whether it is accepted, or step through it symbol by symbol while the active states light up. Works for DFAs and NFAs, including ε-transitions.
 - **See the language it accepts** — open **Language L(M)** under the test bar to see L(M) worked out for you. Block-shaped languages are written in set-builder notation, e.g. `L = { a^n b^m | 1 ≤ n ≤ 4, m = 2n }`; any other automaton gets a regular expression. It updates as you edit and copies as LaTeX.
@@ -58,7 +59,7 @@ All demo media, including a video version and the original screen recording, are
 
 1. **Add a state** — double-click anywhere on the canvas.
 2. **Connect two states** — hold `Shift` and drag from one state to another, or double-click a state and then drag to (or click) its target.
-3. **Edit a state or transition** — click it; a panel opens where you can rename it, mark it as a start/accept state, or edit its label.
+3. **Edit a state or transition** — click it; a panel opens where you can rename it, mark it as a start/accept state, or edit its label. For a transition, the symbol buttons under the label insert ε, ∅, Σ, δ, a subscript (wraps the selected text in `_{ }`), or a digit at the cursor; symbols you typed before show up under **Recent**.
 4. **Reshape a transition** — drag its label to bend the curve, or drag a self-loop to rotate it.
 5. **Move things around** — drag a state to reposition it; drag an empty area to box-select several states at once.
 6. **Pan and zoom** — `Alt` + drag (or the middle mouse button) to pan; `Ctrl`/`Cmd` + scroll, or the on-canvas buttons, to zoom.

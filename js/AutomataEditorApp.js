@@ -7,6 +7,7 @@ import { PointerController } from './interaction/PointerController.js';
 import { KeyboardController } from './interaction/KeyboardController.js';
 import { CanvasRenderer } from './rendering/CanvasRenderer.js';
 import { PropertiesPanel } from './ui/PropertiesPanel.js';
+import { SymbolPicker } from './ui/SymbolPicker.js';
 import { ProjectFile, DiagramExporter } from './io/ProjectIO.js';
 import { AutosaveStore } from './io/AutosaveStore.js';
 import { HistoryManager } from './core/HistoryManager.js';
@@ -90,8 +91,7 @@ export class AutomataEditorApp {
                 nodeNamePreview: this.dom.nodeNamePreview,
                 nodeNameError: this.dom.nodeNameError,
                 edgeLabelPreview: this.dom.edgeLabelPreview,
-                edgeLabelError: this.dom.edgeLabelError,
-                insertEpsilonButton: this.dom.insertEpsilonButton
+                edgeLabelError: this.dom.edgeLabelError
             },
             this.graph,
             this.selectionModel,
@@ -101,6 +101,13 @@ export class AutomataEditorApp {
                 this.camera.updateViewBox();
             }
         );
+
+        this.symbolPicker = new SymbolPicker({
+            pickerElement: this.dom.edgeSymbolPicker,
+            recentRowElement: this.dom.edgeSymbolRecentRow,
+            recentListElement: this.dom.edgeSymbolRecentList,
+            inputElement: this.dom.edgeLabelInput
+        });
 
         this.keyboardController = new KeyboardController({
             graph: this.graph,
@@ -296,7 +303,9 @@ export class AutomataEditorApp {
             nodeNameError: document.getElementById('node-name-error'),
             edgeLabelPreview: document.getElementById('edge-label-preview'),
             edgeLabelError: document.getElementById('edge-label-error'),
-            insertEpsilonButton: document.getElementById('insert-epsilon-button'),
+            edgeSymbolPicker: document.getElementById('edge-symbol-picker'),
+            edgeSymbolRecentRow: document.getElementById('edge-symbol-recent-row'),
+            edgeSymbolRecentList: document.getElementById('edge-symbol-recent-list'),
             simInput: document.getElementById('sim-input'),
             simRunButton: document.getElementById('sim-run-button'),
             simStepBackButton: document.getElementById('sim-step-back-button'),

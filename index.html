@@ -255,10 +255,33 @@
                         placeholder="e.g., a, b, \epsilon" rows="3" spellcheck="false"></textarea>
                     <p id="edge-label-error" class="hidden mt-1 text-xs text-red-600" aria-live="polite"></p>
                     <div class="hidden mt-1 text-xs text-slate-500">Preview: <span id="edge-label-preview" class="text-sm text-slate-800"></span></div>
-                    <div class="mt-1 flex items-start justify-between gap-2">
-                        <p class="text-xs text-slate-500">Separate symbols with commas or new lines. LaTeX works too: <code class="bg-slate-100 px-1 rounded">\epsilon</code> is &#949;.</p>
-                        <button id="insert-epsilon-button" type="button" title="Insert \epsilon (an empty-string transition)"
-                            class="shrink-0 px-2 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">+ &#949;</button>
+                    <p class="mt-1 text-xs text-slate-500">Separate symbols with commas or new lines. LaTeX works too: <code class="bg-slate-100 px-1 rounded">\epsilon</code> is &#949;.</p>
+                    <div id="edge-symbol-picker" class="mt-2 space-y-1" role="group" aria-label="Insert a symbol into the transition label">
+                        <div class="flex flex-wrap gap-1">
+                            <button id="insert-epsilon-button" type="button" data-symbol-index="0" title="Insert \epsilon (an empty-string transition)" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">&#949;</button>
+                            <button type="button" data-symbol-index="1" title="Insert \emptyset (empty set)" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">&#8709;</button>
+                            <button type="button" data-symbol-index="2" title="Insert \Sigma" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">&#931;</button>
+                            <button type="button" data-symbol-index="3" title="Insert \delta" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">&#948;</button>
+                            <button type="button" data-symbol-index="4" title="Subscript: wraps the selection in _{ }" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">x&#8321;</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1">
+                            <button type="button" data-digit="0" title="Insert 0" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">0</button>
+                            <button type="button" data-digit="1" title="Insert 1" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">1</button>
+                            <button type="button" data-digit="2" title="Insert 2" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">2</button>
+                            <button type="button" data-digit="3" title="Insert 3" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">3</button>
+                            <button type="button" data-digit="4" title="Insert 4" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">4</button>
+                            <button type="button" data-digit="5" title="Insert 5" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">5</button>
+                            <button type="button" data-digit="6" title="Insert 6" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">6</button>
+                            <button type="button" data-digit="7" title="Insert 7" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">7</button>
+                            <button type="button" data-digit="8" title="Insert 8" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">8</button>
+                            <button type="button" data-digit="9" title="Insert 9" class="min-w-[1.75rem] px-1.5 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">9</button>
+                        </div>
+                        <div id="edge-symbol-recent-row" class="hidden">
+                            <div class="flex flex-wrap items-center gap-1">
+                                <span class="text-xs text-slate-500 mr-1">Recent:</span>
+                                <span id="edge-symbol-recent-list" class="contents"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <button id="delete-edge-button"
