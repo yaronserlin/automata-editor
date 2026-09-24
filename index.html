@@ -14,32 +14,29 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="bg-slate-50 text-slate-800 min-h-dvh flex flex-col p-3 sm:p-6 box-border">
+<body class="bg-slate-50 text-slate-800 h-dvh flex flex-col p-2 sm:p-5 box-border overflow-hidden">
 
     <div id="a11y-status" class="sr-only" role="status" aria-live="polite"></div>
 
-    <div class="flex flex-col h-dvh">
-
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-2 sm:mb-4 shrink-0 gap-2 sm:gap-4">
+    <header class="flex flex-col md:flex-row justify-between md:items-end mb-2 sm:mb-3 shrink-0 gap-2 sm:gap-4">
         <div>
             <h1 class="text-xl sm:text-3xl font-extrabold text-slate-800">Automata Editor</h1>
-            <p class="text-xs sm:text-base text-slate-500 mt-1">Design, edit, and export deterministic and non-deterministic finite automata.
-            </p>
+            <p class="hidden sm:block text-sm sm:text-base text-slate-500 mt-1">Design, test, and export deterministic and non-deterministic finite automata.</p>
         </div>
-        <div class="flex flex-wrap gap-2 sm:gap-3 justify-end">
+        <div class="grid grid-cols-5 gap-1.5 sm:flex sm:flex-wrap md:flex-nowrap sm:gap-2 md:justify-end shrink-0" role="toolbar" aria-label="File and help">
             <input type="file" id="load-file-input" accept=".json" class="hidden">
 
-            <button id="load-button"
-                class="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-emerald-600 text-white rounded shadow hover:bg-emerald-700 font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition">
-                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="load-button" type="button" title="Load a saved project (.json)"
+                class="px-2 py-1.5 sm:px-4 sm:py-2 rounded shadow font-medium text-[11px] leading-tight sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition bg-emerald-600 text-white hover:bg-emerald-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                 </svg>
                 Load
             </button>
-            <button id="save-button"
-                class="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-emerald-600 text-white rounded shadow hover:bg-emerald-700 font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition">
-                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="save-button" type="button" title="Save the project as a .json file"
+                class="px-2 py-1.5 sm:px-4 sm:py-2 rounded shadow font-medium text-[11px] leading-tight sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition bg-emerald-600 text-white hover:bg-emerald-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
                     </path>
@@ -47,31 +44,102 @@
                 Save
             </button>
 
-            <div class="w-px bg-slate-300 mx-1 hidden sm:block"></div>
+            <div class="w-px bg-slate-300 mx-1 hidden sm:block" aria-hidden="true"></div>
 
-            <button id="export-svg-button"
-                class="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-indigo-600 text-white rounded shadow hover:bg-indigo-700 font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition">
-                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="export-svg-button" type="button" title="Download the diagram as an SVG image"
+                class="px-2 py-1.5 sm:px-4 sm:py-2 rounded shadow font-medium text-[11px] leading-tight sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition bg-indigo-600 text-white hover:bg-indigo-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                 </svg>
-                Download SVG
+                <span><span class="hidden sm:inline">Download </span>SVG</span>
             </button>
-            <button id="export-tikz-button"
-                class="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-slate-800 text-white rounded shadow hover:bg-slate-900 font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition">
-                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button id="export-tikz-button" type="button" title="Download LaTeX/TikZ source"
+                class="px-2 py-1.5 sm:px-4 sm:py-2 rounded shadow font-medium text-[11px] leading-tight sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition bg-slate-800 text-white hover:bg-slate-900">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                 </svg>
-                Download LaTeX
+                <span><span class="hidden sm:inline">Download </span>LaTeX</span>
+            </button>
+            <button id="help-button" type="button" title="How to use the editor" aria-haspopup="dialog"
+                class="px-2 py-1.5 sm:px-4 sm:py-2 rounded shadow font-medium text-[11px] leading-tight sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition bg-white text-slate-700 border border-slate-300 hover:bg-slate-100">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Help
             </button>
         </div>
-    </div>
+    </header>
 
-    <div class="flex-1 flex flex-col items-center justify-center gap-3 sm:gap-6 min-h-[180px] relative overflow-y-auto">
+    <section id="simulation-bar" aria-label="Test an input string"
+        class="shrink-0 mb-2 sm:mb-3 bg-white border border-slate-200 rounded-lg shadow-sm px-2 py-2 sm:px-3">
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+            <label for="sim-input" class="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700 whitespace-nowrap">
+                Test input
+                <span id="sim-type-badge" class="sim-type-badge"></span>
+            </label>
+            <input type="text" id="sim-input" autocomplete="off" spellcheck="false" autocapitalize="off"
+                placeholder="e.g. abba (empty = &#949;)"
+                aria-describedby="sim-status"
+                class="flex-1 min-w-0 basis-32 px-2 py-1 sm:py-1.5 border border-slate-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex items-center gap-1" role="group" aria-label="Simulation controls">
+                <button id="sim-run-button" type="button" title="Run the whole input (Enter)"
+                    class="px-3 py-1 sm:py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-sm text-xs sm:text-sm font-semibold transition">Run</button>
+                <button id="sim-step-back-button" type="button" title="Previous step" aria-label="Previous step"
+                    class="sim-icon-button p-1.5 rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <button id="sim-play-button" type="button" title="Play step by step" aria-label="Play step by step"
+                    class="sim-icon-button p-1.5 rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 transition">
+                    <svg data-icon="play" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+                    <svg data-icon="pause" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>
+                </button>
+                <button id="sim-step-forward-button" type="button" title="Next step" aria-label="Next step"
+                    class="sim-icon-button p-1.5 rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+                <button id="sim-reset-button" type="button" title="Clear the simulation" aria-label="Clear the simulation"
+                    class="sim-icon-button p-1.5 rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+        <div class="sim-output flex flex-wrap items-center gap-x-3 gap-y-1">
+            <div id="sim-tape" class="sim-tape" aria-hidden="true"></div>
+            <div id="sim-status" class="sim-status"></div>
+        </div>
+    </section>
+
+    <main class="flex-1 min-h-0 flex flex-col items-center justify-center gap-2 sm:gap-6 relative overflow-y-auto">
 
         <div id="canvas-container"
             class="h-full max-w-full aspect-video relative border-2 border-slate-300 rounded-lg sm:rounded-xl shadow-sm bg-white overflow-hidden select-none shrink-0">
+
+            <div id="onboarding-hint" class="onboarding-hint hidden" role="note">
+                <span id="onboarding-hint-text"></span>
+                <button id="onboarding-help-button" type="button" class="onboarding-link">More help</button>
+                <button id="onboarding-dismiss-button" type="button" class="onboarding-close" aria-label="Dismiss hint" title="Dismiss">&times;</button>
+            </div>
+
+            <div id="edge-draft-banner" class="edge-draft-banner hidden" aria-hidden="true"></div>
+
+            <div
+                class="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-white/90 backdrop-blur border border-slate-200 rounded-lg shadow-sm flex items-center p-1 z-20">
+                <button id="undo-button" type="button" class="p-1 sm:p-1.5 hover:bg-slate-100 rounded text-slate-600 transition disabled:opacity-40 disabled:hover:bg-transparent"
+                    title="Undo (Ctrl+Z)" aria-label="Undo">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a5 5 0 015 5v2M3 10l5-5m-5 5l5 5"></path>
+                    </svg>
+                </button>
+                <button id="redo-button" type="button" class="p-1 sm:p-1.5 hover:bg-slate-100 rounded text-slate-600 transition disabled:opacity-40 disabled:hover:bg-transparent"
+                    title="Redo (Ctrl+Shift+Z)" aria-label="Redo">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10H11a5 5 0 00-5 5v2m15-7l-5-5m5 5l-5 5"></path>
+                    </svg>
+                </button>
+            </div>
 
             <div
                 class="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-white/90 backdrop-blur border border-slate-200 rounded-lg shadow-sm flex items-center p-1 z-20">
@@ -93,7 +161,7 @@
 
             <svg id="automaton-canvas" class="w-full h-full touch-none select-none" style="touch-action: none;"
                 tabindex="0"
-                aria-label="Automaton diagram editor canvas. Press N to add a node, bracket keys to select the next or previous node or edge, arrow keys to move the selected node, Enter to start or confirm drawing an edge, plus and minus to bend the selected edge, Escape to cancel, Delete to remove the selection.">
+                aria-label="Automaton diagram editor canvas. Press N to add a node, bracket keys to select the next or previous node or edge, arrow keys to move the selected node, Enter to start or confirm drawing an edge, plus and minus to bend the selected edge, Escape to cancel, Delete to remove the selection, Control Z to undo and Control Shift Z to redo.">
                 <defs>
                     <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5"
                         orient="auto-start-reverse">
@@ -119,8 +187,11 @@
             <div id="node-props" class="hidden space-y-4">
                 <div>
                     <label for="node-name-input" class="block text-sm font-medium text-slate-700 mb-1">Node Name:</label>
-                    <input type="text" id="node-name-input"
+                    <input type="text" id="node-name-input" spellcheck="false" autocomplete="off"
                         class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p id="node-name-error" class="hidden mt-1 text-xs text-red-600" aria-live="polite"></p>
+                    <div class="hidden mt-1 text-xs text-slate-500">Preview: <span id="node-name-preview" class="text-sm text-slate-800"></span></div>
+                    <p class="mt-1 text-xs text-slate-500">Names support LaTeX: <code class="bg-slate-100 px-1 rounded">q_0</code>, <code class="bg-slate-100 px-1 rounded">q_{10}</code>, <code class="bg-slate-100 px-1 rounded">\Sigma</code>.</p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <input type="checkbox" id="node-is-start"
@@ -147,7 +218,14 @@
                     <label for="edge-label-input" class="block text-sm font-medium text-slate-700 mb-1">Transition Label:</label>
                     <textarea id="edge-label-input"
                         class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="e.g., a, b, \epsilon" rows="3"></textarea>
+                        placeholder="e.g., a, b, \epsilon" rows="3" spellcheck="false"></textarea>
+                    <p id="edge-label-error" class="hidden mt-1 text-xs text-red-600" aria-live="polite"></p>
+                    <div class="hidden mt-1 text-xs text-slate-500">Preview: <span id="edge-label-preview" class="text-sm text-slate-800"></span></div>
+                    <div class="mt-1 flex items-start justify-between gap-2">
+                        <p class="text-xs text-slate-500">Separate symbols with commas or new lines. LaTeX works too: <code class="bg-slate-100 px-1 rounded">\epsilon</code> is &#949;.</p>
+                        <button id="insert-epsilon-button" type="button" title="Insert \epsilon (an empty-string transition)"
+                            class="shrink-0 px-2 py-0.5 text-sm border border-slate-300 rounded hover:bg-slate-100 text-slate-700">+ &#949;</button>
+                    </div>
                 </div>
                 <button id="delete-edge-button"
                     class="w-full mt-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md shadow flex justify-center items-center gap-2 transition">
@@ -161,53 +239,89 @@
             </div>
         </div>
 
-    </div>
+    </main>
 
-    </div>
-
-    <div id="instructions"
-        class="grid mt-2 sm:mt-4 p-3 sm:p-5 bg-white border border-slate-200 rounded-lg shadow-sm text-xs sm:text-sm text-slate-700 grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 shrink-0">
-        <div>
-            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Create & Edit</h4>
-            <ul class="space-y-1">
-                <li>🖱️ <strong>Double-click canvas</strong>: Create Node</li>
-                <li>🔗 <strong>Double-click node</strong>: Draw Edge / Edit</li>
-                <li>👆 <strong>Double-click edge</strong>: Edit properties</li>
-            </ul>
-        </div>
-        <div>
-            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Move & Select</h4>
-            <ul class="space-y-1">
-                <li>👆 <strong>Click</strong>: Select Node / Edge</li>
-                <li>✋ <strong>Drag node</strong>: Move</li>
-                <li>📦 <strong>Drag empty space</strong>: Multi-select</li>
-            </ul>
-        </div>
-        <div>
-            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Actions</h4>
-            <ul class="space-y-1">
-                <li>⌨️ <strong>Delete / Backspace</strong>: Delete selection</li>
-                <li>🔍 <strong>Ctrl + Scroll</strong> (or Buttons): Zoom Canvas</li>
-                <li>🖐️ <strong>Middle-Click / Alt+Drag</strong>: Pan Canvas</li>
-            </ul>
-        </div>
-        <div class="md:col-span-3">
-            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Keyboard (no mouse needed)</h4>
-            <ul class="space-y-1 md:grid md:grid-cols-4 md:gap-x-6 md:space-y-0">
-                <li><strong>N</strong>: Create node at view center</li>
-                <li><strong>[ / ]</strong>: Select previous / next node or edge</li>
-                <li><strong>Arrow keys</strong>: Move selected node(s)</li>
-                <li><strong>Enter</strong>: Start / confirm drawing an edge</li>
-                <li><strong>+ / -</strong>: Bend selected edge's curve</li>
-                <li><strong>0</strong>: Reset selected edge's shape</li>
-                <li><strong>Escape</strong>: Cancel edge draw / deselect</li>
-            </ul>
-        </div>
-    </div>
-
-    <footer class="mt-1 sm:mt-2 text-center text-xs text-slate-400 shrink-0 pb-1 sm:pb-2">
-        &copy; 2026 automata-editor. All rights reserved.
+    <footer class="mt-1 sm:mt-2 text-center text-xs text-slate-400 shrink-0">
+        &copy; 2026 Yaron Serlin &middot; Released under the
+        <a href="https://github.com/yaronserlin/automata-editor/blob/main/LICENSE" class="underline hover:text-slate-600" target="_blank" rel="noopener">MIT License</a>
     </footer>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <dialog id="help-dialog" aria-labelledby="help-title"
+        class="help-dialog w-[min(56rem,calc(100vw-1.5rem))] max-h-[85dvh] p-0 rounded-xl border border-slate-200 shadow-2xl text-slate-700 bg-white">
+        <div class="sticky top-0 bg-white/95 backdrop-blur flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-200">
+            <h2 id="help-title" class="text-lg font-bold text-slate-800">How to use Automata Editor</h2>
+            <button id="help-close-button" type="button" aria-label="Close help" title="Close (Esc)"
+                class="p-1.5 rounded hover:bg-slate-100 text-slate-500 text-xl leading-none">&times;</button>
+        </div>
+        <div id="instructions" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 px-4 sm:px-6 py-4 text-sm">
+            <section>
+                <h3 class="font-bold text-slate-800 mb-2 border-b pb-1">Create &amp; connect</h3>
+                <ul class="space-y-1.5">
+                    <li><strong>Double-click the canvas</strong> (or press <kbd>N</kbd>): add a state.</li>
+                    <li><strong>Draw a transition:</strong> hold <kbd>Shift</kbd> and drag from one state to another.</li>
+                    <li><strong>Or double-click a state</strong>, then drag to the target state, or release and click the target. Click the same state for a self-loop; click empty space or press <kbd>Esc</kbd> to cancel. A banner on the canvas shows when you are drawing.</li>
+                    <li><strong>Click a state or transition</strong>: edit its name, label, or start/accept flags in the panel.</li>
+                </ul>
+            </section>
+            <section>
+                <h3 class="font-bold text-slate-800 mb-2 border-b pb-1">Move &amp; view</h3>
+                <ul class="space-y-1.5">
+                    <li><strong>Drag a state</strong>: move it (it snaps into line with its neighbours).</li>
+                    <li><strong>Drag a transition's label</strong>: bend it. Drag the start arrow to rotate it.</li>
+                    <li><strong>Drag empty space</strong>: select several states.</li>
+                    <li><strong><kbd>Ctrl</kbd> + scroll</strong> or the +/&minus; buttons: zoom. <strong><kbd>Alt</kbd> + drag</strong> or middle-click drag: pan.</li>
+                </ul>
+            </section>
+            <section>
+                <h3 class="font-bold text-slate-800 mb-2 border-b pb-1">Test an input</h3>
+                <ul class="space-y-1.5">
+                    <li>Type a string in <strong>Test input</strong> and press <kbd>Enter</kbd> or <strong>Run</strong> to see if it is accepted.</li>
+                    <li>Use the <strong>step</strong> and <strong>play</strong> buttons to watch the active states light up one symbol at a time.</li>
+                    <li>Works for DFAs and NFAs, including &#949;-transitions. Leave the input empty to test the empty string. Separate multi-character symbols with spaces (<code class="bg-slate-100 px-1 rounded">10 01</code>).</li>
+                </ul>
+            </section>
+            <section>
+                <h3 class="font-bold text-slate-800 mb-2 border-b pb-1">Labels (LaTeX)</h3>
+                <ul class="space-y-1.5">
+                    <li>Names and labels are rendered as math: <code class="bg-slate-100 px-1 rounded">q_0</code> &rarr; q&#8320;, <code class="bg-slate-100 px-1 rounded">\epsilon</code> &rarr; &#949;, <code class="bg-slate-100 px-1 rounded">\Sigma</code> &rarr; &Sigma;.</li>
+                    <li>Use braces for longer subscripts: <code class="bg-slate-100 px-1 rounded">q_{10}</code>.</li>
+                    <li>If a label is not valid LaTeX, the panel explains what is wrong.</li>
+                </ul>
+            </section>
+            <section>
+                <h3 class="font-bold text-slate-800 mb-2 border-b pb-1">Undo &amp; saving</h3>
+                <ul class="space-y-1.5">
+                    <li><kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> (or <kbd>Ctrl</kbd>+<kbd>Y</kbd>) redo. On a Mac, use <kbd>&#8984;</kbd>. The buttons in the canvas corner do the same.</li>
+                    <li><kbd>Delete</kbd> / <kbd>Backspace</kbd>: delete the selection (undo brings it back).</li>
+                    <li>Your diagram is saved in this browser automatically. Use <strong>Save</strong> to download a project file you can <strong>Load</strong> anywhere.</li>
+                </ul>
+            </section>
+            <section>
+                <h3 class="font-bold text-slate-800 mb-2 border-b pb-1">Touch screens</h3>
+                <ul class="space-y-1.5">
+                    <li><strong>Double-tap</strong> the canvas: add a state.</li>
+                    <li><strong>Double-tap a state</strong>, keep your finger down, and drag to the target; or lift and tap the target.</li>
+                    <li><strong>Tap</strong> a state or transition to edit it. <strong>Drag</strong> a state to move it.</li>
+                    <li><strong>Pinch</strong> to zoom; move two fingers together to pan.</li>
+                </ul>
+            </section>
+            <section class="md:col-span-2">
+                <h3 class="font-bold text-slate-800 mb-2 border-b pb-1">Keyboard (no mouse needed)</h3>
+                <ul class="space-y-1 md:grid md:grid-cols-2 md:gap-x-6 md:space-y-0">
+                    <li><kbd>N</kbd>: create a state in free space near the view center</li>
+                    <li><kbd>[</kbd> / <kbd>]</kbd>: select previous / next state or transition</li>
+                    <li>Arrow keys: move selected state(s) (<kbd>Shift</kbd> for 1px)</li>
+                    <li><kbd>Enter</kbd>: start / confirm drawing a transition</li>
+                    <li><kbd>+</kbd> / <kbd>-</kbd>: bend the selected transition</li>
+                    <li><kbd>0</kbd>: reset the selected transition's shape</li>
+                    <li><kbd>Escape</kbd>: cancel drawing / deselect</li>
+                    <li><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd>: undo / redo</li>
+                </ul>
+            </section>
+        </div>
+    </dialog>
 
     <script type="module" src="js/main.js"></script>
 
