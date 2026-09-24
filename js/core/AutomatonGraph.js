@@ -134,6 +134,28 @@ export class AutomatonGraph {
     }
 
     /**
+     * @returns {string} A compact JSON snapshot of the diagram itself (no camera state),
+     *   used for undo/redo history and change detection. Equal diagrams give equal strings.
+     */
+    toSnapshot() {
+        return JSON.stringify({
+            nodes: this.nodes.map(node => node.toJSON()),
+            edges: this.edges.map(edge => edge.toJSON()),
+            nodeIdCounter: this.nextNodeIndex,
+            edgeIdCounter: this.nextEdgeIndex
+        });
+    }
+
+    /**
+     * @param {string} snapshot - A string produced by toSnapshot().
+     * @returns {AutomatonGraph} A new graph rebuilt from the snapshot.
+     */
+    static fromSnapshot(snapshot) {
+        const result = AutomatonGraph.fromRaw(JSON.parse(snapshot));
+        return result ? result.graph : new AutomatonGraph();
+    }
+
+    /**
      * Validates and normalizes an untrusted, parsed project file into a new graph.
      * @param {*} parsedData - The result of JSON.parse() on an untrusted file.
      * @returns {{graph: AutomatonGraph, panPositionX: number, panPositionY: number, zoom: number, droppedCount: number}|null}
