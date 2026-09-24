@@ -73,6 +73,7 @@ A red check on a pull request means one of these failed; run the same command lo
 | `js/rendering/CanvasRenderer.js` | Draws nodes, edges, and alignment guides into the SVG |
 | `js/rendering/KatexLayout.js` | Rewrites KaTeX's positioned layers as normal-flow margins so labels render inside `foreignObject` in Safari; shrinks long node labels |
 | `js/ui/PropertiesPanel.js` | State/transition property editor, with LaTeX preview and error messages |
+| `js/ui/SymbolPicker.js` | Quick-symbol picker under the transition label: fixed symbols (ε, ∅, Σ, δ, subscript), digits 0-9 (ε, ∅, and recent symbols get their own comma-separated entry; the rest go in as typed), and a Recent row learned from the user's labels, saved in `localStorage` (`automata-editor:recent-symbols`). The buttons are static markup in `index.html` so Tailwind sees their classes; recent buttons copy the first button's classes |
 | `js/ui/SimulationPanel.js` | Test-input bar: runs, steps through, and explains a simulation |
 | `js/ui/LanguagePanel.js` | "Language L(M)" row under the test bar: shows and copies the accepted language |
 | `js/ui/ToastManager.js`, `js/ui/OnboardingHint.js` | Toast notifications and the first-visit hint |
@@ -92,7 +93,7 @@ A red check on a pull request means one of these failed; run the same command lo
 
 ## Testing
 
-Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`: 110 tests across 12 files. There is no Vitest config and no DOM library (jsdom/happy-dom) installed, so tests run in plain Node — they can only import modules that don't touch `document`, `window`, or the global `katex`.
+Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`: 129 tests across 14 files. There is no Vitest config and no DOM library (jsdom/happy-dom) installed, so tests run in plain Node — they can only import modules that don't touch `document`, `window`, or the global `katex`.
 
 | File | Covers |
 |------|--------|
@@ -108,6 +109,8 @@ Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`: 110 tests a
 | `test/camera.test.js` | `CameraController.restore`: clamping a restored zoom to the supported range |
 | `test/edge-draft-safety.test.js` | Edge-draft cancellation on delete and `PointerController` guards for deleted nodes/edges (uses minimal DOM stubs) |
 | `test/katex-layout.test.js` | `KatexLayout`: rewriting KaTeX's relative offsets so labels render inside SVG `foreignObject` in Safari |
+| `test/a11y-menu.test.js` | `AccessibilityMenu` helpers: loading and clamping saved preferences, applying them, panel placement |
+| `test/symbol-picker.test.js` | `SymbolPicker` helpers: the fixed rows, learning and capping recent symbols, storage round-trip and bad data, inserting at the cursor (subscript wrap, comma before ε, ∅, or a recent symbol) |
 
 The file names predate the current module layout (`export.test.js` covers loading, not exporting). The renderer, properties panel, and file I/O are not covered; `DiagramExporter.toTikzString` is DOM-free and a good candidate for a first new test.
 
