@@ -121,6 +121,20 @@
             <div id="sim-tape" class="sim-tape" aria-hidden="true"></div>
             <div id="sim-status" class="sim-status"></div>
         </div>
+        <div class="lang-row">
+            <button id="lang-toggle-button" type="button" class="lang-toggle" aria-expanded="false" aria-controls="lang-output"
+                title="Show the language this automaton accepts, L(M)">
+                <svg class="lang-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                Language L(M)
+            </button>
+            <div id="lang-output" class="lang-output hidden">
+                <div id="lang-expression" class="lang-expression" role="math"></div>
+                <div class="lang-footer">
+                    <span id="lang-meta" class="lang-meta"></span>
+                    <button id="lang-copy-button" type="button" class="lang-copy" title="Copy the expression as LaTeX source">Copy LaTeX</button>
+                </div>
+            </div>
+        </div>
     </section>
 
     <main class="flex-1 min-h-0 flex flex-col items-center justify-center gap-2 sm:gap-6 relative overflow-y-auto">

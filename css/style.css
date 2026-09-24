@@ -245,6 +245,106 @@ kbd {
     font-size: 1em;
 }
 
+/* ---------- Language L(M) ---------- */
+
+.lang-row {
+    margin-top: 0.375rem;
+    padding-top: 0.375rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.lang-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    border-radius: 4px;
+}
+
+.lang-toggle:hover {
+    color: #1e293b;
+}
+
+.lang-toggle:focus-visible,
+.lang-copy:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.lang-chevron {
+    width: 0.9rem;
+    height: 0.9rem;
+    transition: transform 0.15s ease;
+}
+
+.lang-toggle[aria-expanded="true"] .lang-chevron {
+    transform: rotate(90deg);
+}
+
+.lang-output {
+    margin-top: 0.25rem;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #f8fafc;
+}
+
+.lang-output.hidden {
+    display: none;
+}
+
+.lang-expression {
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: 5.5rem;
+    padding: 0.125rem 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #0f172a;
+}
+
+.lang-output-error .lang-expression {
+    font-size: 0.85rem;
+    color: #b91c1c;
+}
+
+.lang-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem 0.75rem;
+}
+
+.lang-meta {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.lang-meta:empty {
+    display: none;
+}
+
+.lang-copy {
+    flex-shrink: 0;
+    padding: 0 0.4rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 0.75rem;
+    color: #334155;
+}
+
+.lang-copy:hover {
+    background: #f1f5f9;
+}
+
+.lang-copy.hidden {
+    display: none;
+}
+
 .node.sim-active .node-circle {
     fill: #fef3c7;
     stroke: #f59e0b;
