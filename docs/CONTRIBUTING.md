@@ -82,8 +82,10 @@ Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`. There is no
 | `test/history.test.js` | `HistoryManager` undo/redo and `AutomatonGraph` snapshots |
 | `test/autosave.test.js` | `AutosaveStore` save/restore with in-memory and failing storage |
 | `test/placement.test.js` | `NodePlacement`: finding free space for new states |
+| `test/camera.test.js` | `CameraController.restore`: clamping a restored zoom to the supported range |
+| `test/edge-draft-safety.test.js` | Edge-draft cancellation on delete and `PointerController` guards for deleted nodes/edges (uses minimal DOM stubs) |
 
-The file names predate the current module layout (`export.test.js` covers loading, not exporting). The controllers, renderer, properties panel, and file I/O are not covered; `DiagramExporter.toTikzString` is DOM-free and a good candidate for a first new test.
+The file names predate the current module layout (`export.test.js` covers loading, not exporting). The renderer, properties panel, and file I/O are not covered; `DiagramExporter.toTikzString` is DOM-free and a good candidate for a first new test.
 
 To add a test, create `test/<topic>.test.js` and import from `vitest` and from `../js/...` with the `.js` extension (the package is `"type": "module"`):
 
