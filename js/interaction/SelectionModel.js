@@ -98,18 +98,23 @@ export class EdgeDraftState {
         this.active = false;
         /** @type {string|null} */
         this.sourceNodeId = null;
+        /** @type {'pointer'|'keyboard'} How the draft was started, so on-screen help can match it. */
+        this.mode = 'pointer';
     }
 
     /**
      * @param {string} nodeId
+     * @param {'pointer'|'keyboard'} [mode]
      */
-    start(nodeId) {
+    start(nodeId, mode = 'pointer') {
         this.active = true;
         this.sourceNodeId = nodeId;
+        this.mode = mode;
     }
 
     cancel() {
         this.active = false;
         this.sourceNodeId = null;
+        this.mode = 'pointer';
     }
 }
