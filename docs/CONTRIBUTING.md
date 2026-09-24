@@ -67,13 +67,14 @@ A red check on a pull request means one of these failed; run the same command lo
 | `index.html` | Page markup: toolbar, SVG canvas layers, properties panel, help panel |
 | `js/main.js` | Entry point; instantiates `AutomataEditorApp` |
 | `js/AutomataEditorApp.js` | Composition root: wires models, controllers, and views; canvas sizing; seed diagram |
-| `js/core/` | Automaton data model (`AutomatonNode`, `AutomatonEdge`, `AutomatonGraph`), validation of loaded project data (`fromRaw`), the input simulator (`AutomatonSimulator`), and undo history (`HistoryManager`) |
+| `js/core/` | Automaton data model (`AutomatonNode`, `AutomatonEdge`, `AutomatonGraph`), validation of loaded project data (`fromRaw`), the input simulator (`AutomatonSimulator`), the language analyzer (`LanguageAnalyzer`: NFA to minimal DFA, then set-builder notation or a regular expression), and undo history (`HistoryManager`) |
 | `js/geometry/GeometryUtils.js` | Pure helpers: HTML escaping, KaTeX and LaTeX-to-SVG text, snapping, edge path math |
 | `js/interaction/` | `CameraController` (pan/zoom), `SelectionModel` + `EdgeDraftState`, `PointerController` (mouse/touch), `KeyboardController` |
 | `js/rendering/CanvasRenderer.js` | Draws nodes, edges, and alignment guides into the SVG |
 | `js/rendering/KatexLayout.js` | Rewrites KaTeX's positioned layers as normal-flow margins so labels render inside `foreignObject` in Safari; shrinks long node labels |
 | `js/ui/PropertiesPanel.js` | State/transition property editor, with LaTeX preview and error messages |
 | `js/ui/SimulationPanel.js` | Test-input bar: runs, steps through, and explains a simulation |
+| `js/ui/LanguagePanel.js` | "Language L(M)" row under the test bar: shows and copies the accepted language |
 | `js/ui/ToastManager.js`, `js/ui/OnboardingHint.js` | Toast notifications and the first-visit hint |
 | `js/io/AutosaveStore.js` | Autosave to `localStorage` |
 | `js/geometry/NodePlacement.js` | Finds free space for new states |
@@ -89,7 +90,7 @@ A red check on a pull request means one of these failed; run the same command lo
 
 ## Testing
 
-Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`: 96 tests across 11 files. There is no Vitest config and no DOM library (jsdom/happy-dom) installed, so tests run in plain Node — they can only import modules that don't touch `document`, `window`, or the global `katex`.
+Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`: 110 tests across 12 files. There is no Vitest config and no DOM library (jsdom/happy-dom) installed, so tests run in plain Node — they can only import modules that don't touch `document`, `window`, or the global `katex`.
 
 | File | Covers |
 |------|--------|
@@ -98,6 +99,7 @@ Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`: 96 tests ac
 | `test/render.test.js` | `AutomatonEdge` curve editing and `SelectionModel.cycle` |
 | `test/utils.test.js` | `GeometryUtils`: HTML escaping, LaTeX-to-SVG text (XSS regression guard), LaTeX error messages, axis snapping, edge paths |
 | `test/simulator.test.js` | `AutomatonSimulator`: label parsing, input tokenizing, DFA/NFA/ε runs, step records, error cases |
+| `test/language.test.js` | `LanguageAnalyzer`: set-builder output (bounds, `m = 2n`, `mod`), regular-expression fallback checked against the simulator on random NFAs, empty language |
 | `test/history.test.js` | `HistoryManager` undo/redo and `AutomatonGraph` snapshots |
 | `test/autosave.test.js` | `AutosaveStore` save/restore with in-memory and failing storage |
 | `test/placement.test.js` | `NodePlacement`: finding free space for new states |
