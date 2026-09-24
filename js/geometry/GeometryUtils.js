@@ -45,6 +45,45 @@ export class GeometryUtils {
     }
 
     /**
+     * Checks whether a label is valid LaTeX. KaTeX renders invalid input as red raw
+     * text, which is easy to miss and hard to understand; this lets the UI explain it.
+     * Multi-line labels are checked line by line, the same way they are rendered.
+     * @param {string} text
+     * @returns {string|null} A short, human-readable error, or null when the label is
+     *   valid (or when KaTeX is not loaded, so nothing can be checked).
+     */
+    static getLatexError(text) {
+        if (!text || typeof katex === 'undefined') return null;
+        for (const line of String(text).split('\n')) {
+            if (!line.trim()) continue;
+            try {
+                katex.renderToString(line, { throwOnError: true, trust: false });
+            } catch (error) {
+                return `Invalid LaTeX: ${GeometryUtils.describeLatexError(error)}`;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Turns a KaTeX parse error into a short explanation a non-LaTeX user can act on.
+     * @param {*} error
+     * @returns {string}
+     */
+    static describeLatexError(error) {
+        const rawMessage = String(error && error.message ? error.message : error).replace(/^KaTeX parse error:\s*/i, '');
+        const unknownCommand = rawMessage.match(/Undefined control sequence:\s*(\\[A-Za-z]+)/);
+        if (unknownCommand) return `unknown command ${unknownCommand[1]}. Check the spelling (e.g. \\epsilon).`;
+        const endsEarly = /end of input|got 'EOF'/i.test(rawMessage);
+        if (endsEarly && /expected '}'/i.test(rawMessage)) return 'a { is never closed. Add the missing }.';
+        if (endsEarly) return 'the label ends before a command is finished (for example a missing } or \\right).';
+        if (/Expected 'EOF', got '}'/i.test(rawMessage)) return 'there is an extra } with no matching {.';
+        if (/Double subscript|Double superscript/i.test(rawMessage)) return 'two subscripts or superscripts in a row. Group them with { }, e.g. q_{10}.';
+        const shortMessage = rawMessage.replace(/\s+at position \d+:.*$/s, '').replace(/\.$/, '').trim();
+        return `${shortMessage || 'this label cannot be rendered'}.`;
+    }
+
+    /**
      * Converts a LaTeX-like label into safe, self-contained SVG markup: unicode
      * symbols plus generated tspan elements for sub/superscripts.
      * @param {string} latexText
