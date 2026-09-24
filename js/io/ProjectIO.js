@@ -91,7 +91,7 @@ export class DiagramExporter {
         if (selectionBoxClone) selectionBoxClone.remove();
 
         graph.nodes.forEach(node => {
-            const nodeGroup = svgClone.querySelector(`.node[data-id="${node.id}"]`);
+            const nodeGroup = svgClone.querySelector(`.node[data-id="${CSS.escape(node.id)}"]`);
             if (!nodeGroup) return;
             const foreignObject = nodeGroup.querySelector('foreignObject');
             if (foreignObject) foreignObject.remove();
@@ -108,7 +108,7 @@ export class DiagramExporter {
         });
 
         graph.edges.forEach(edge => {
-            const edgeGroup = svgClone.querySelector(`.edge[data-id="${edge.id}"]`);
+            const edgeGroup = svgClone.querySelector(`.edge[data-id="${CSS.escape(edge.id)}"]`);
             if (!edgeGroup) return;
             const foreignObject = edgeGroup.querySelector('foreignObject');
             if (foreignObject) foreignObject.remove();
