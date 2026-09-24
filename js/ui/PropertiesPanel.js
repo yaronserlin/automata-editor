@@ -21,7 +21,6 @@ export class PropertiesPanel {
      * @param {HTMLElement} [elements.nodeNameError] Plain-language LaTeX error for the state name.
      * @param {HTMLElement} [elements.edgeLabelPreview] Rendered preview of the transition label.
      * @param {HTMLElement} [elements.edgeLabelError] Plain-language LaTeX error for the transition label.
-     * @param {HTMLButtonElement} [elements.insertEpsilonButton] Inserts \epsilon into the transition label.
      * @param {import('../core/AutomatonGraph.js').AutomatonGraph} graph
      * @param {import('../interaction/SelectionModel.js').SelectionModel} selectionModel
      * @param {() => void} requestRender
@@ -155,8 +154,6 @@ export class PropertiesPanel {
             }
         });
 
-        this.insertEpsilonButton?.addEventListener('click', () => this.insertIntoEdgeLabel('\\epsilon'));
-
         this.deleteNodeButton.addEventListener('click', () => {
             if (this.selectionModel.selectedElement?.type !== 'node') return;
             this.graph.deleteNode(this.selectionModel.selectedElement.id);
@@ -170,19 +167,5 @@ export class PropertiesPanel {
             this.selectionModel.clear();
             this.requestRender();
         });
-    }
-
-    /**
-     * Inserts text at the cursor in the transition label, as if the user had typed it.
-     * @param {string} text
-     */
-    insertIntoEdgeLabel(text) {
-        const input = this.edgeLabelInput;
-        const start = input.selectionStart ?? input.value.length;
-        const end = input.selectionEnd ?? input.value.length;
-        input.value = input.value.slice(0, start) + text + input.value.slice(end);
-        input.focus();
-        input.setSelectionRange(start + text.length, start + text.length);
-        input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 }
