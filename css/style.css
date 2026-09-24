@@ -5,8 +5,14 @@ body {
 svg {
     width: 100%;
     height: 100%;
-    cursor: crosshair;
     display: block;
+}
+
+/* Crosshair only on the drawing canvas. A bare `svg` selector also hit every
+   icon inside the toolbar and zoom buttons, so hovering an icon showed a
+   crosshair instead of the button's pointer. */
+#automaton-canvas {
+    cursor: crosshair;
 }
 
 .node {

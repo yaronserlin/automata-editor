@@ -1,5 +1,6 @@
 import { AutomatonNode } from '../core/AutomatonNode.js';
 import { GeometryUtils } from '../geometry/GeometryUtils.js';
+import { KatexLayout } from './KatexLayout.js';
 
 /**
  * Renders an AutomatonGraph's nodes, edges, and alignment guides onto the SVG canvas,
@@ -112,8 +113,8 @@ export class CanvasRenderer {
         const textWrapper = document.createElement('div');
         textWrapper.style.display = 'inline-block';
         textWrapper.style.whiteSpace = 'nowrap';
-        textWrapper.style.transformOrigin = 'center center';
         textWrapper.innerHTML = GeometryUtils.renderKatex(node.name);
+        KatexLayout.flattenForForeignObject(textWrapper);
 
         container.appendChild(textWrapper);
         foreignObject.appendChild(container);
@@ -132,7 +133,10 @@ export class CanvasRenderer {
         const elementHeight = textWrapper.scrollHeight;
         if (elementWidth > maxFit || elementHeight > maxFit) {
             const scaleFactor = Math.min(maxFit / elementWidth, maxFit / elementHeight);
-            textWrapper.style.transform = `scale(${scaleFactor})`;
+            // Shrink via font-size rather than a CSS transform: KaTeX sizes everything in em,
+            // so this scales the whole label, and unlike a transform it does not create a
+            // render layer, which Safari would draw in the wrong place (see KatexLayout).
+            textWrapper.style.fontSize = `${scaleFactor}em`;
         }
     }
 
@@ -232,6 +236,7 @@ export class CanvasRenderer {
         labelBackground.style.textShadow = '0px 0px 4px rgba(255,255,255,0.9), 0px 0px 4px rgba(255,255,255,0.9)';
 
         labelBackground.innerHTML = edge.label.split('\n').map(line => GeometryUtils.renderKatex(line)).join('<br/>');
+        KatexLayout.flattenForForeignObject(labelBackground);
         labelBackground.addEventListener('mousedown', event => this.pointerController.handleEdgeMouseDown(event, edge.id));
         labelBackground.addEventListener('touchstart', event => this.pointerController.handleEdgeMouseDown(event, edge.id), { passive: false });
 
