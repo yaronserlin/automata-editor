@@ -297,6 +297,19 @@ kbd {
     display: none;
 }
 
+/* On small screens the hint leaves the canvas overlay and becomes a slim
+   full-width bar above the canvas (see OnboardingHint.updatePlacement), so
+   the diagram stays fully visible and tappable. Desktop is unchanged. */
+@media (max-width: 639px) {
+    .onboarding-hint.onboarding-hint--inline {
+        position: static;
+        transform: none;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
 .onboarding-link {
     flex-shrink: 0;
     color: #93c5fd;
