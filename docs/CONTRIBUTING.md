@@ -85,7 +85,7 @@ A red check on a pull request means one of these failed; run the same command lo
 | `eslint.config.js` | ESLint flat config: recommended rules, browser globals (plus `katex`) for `js/`, Node globals for tests and scripts |
 | `.github/workflows/ci.yml` | GitHub Actions: install, lint, CSS check, tests |
 | `favicon.ico`, `android-chrome-512x512.png` | Browser tab icon (16/32px) and the large icon used as `apple-touch-icon` |
-| `media/demo.png` | README screenshot, also the social preview image (`og:image`). The demo video is not in the repo; it lives in the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) |
+| `media/demo.png` | Social preview image (`og:image` in `index.html`). The README screenshots, GIFs, and videos are not in the repo; they live on the [Demo media release](https://github.com/yaronserlin/automata-editor/releases/tag/demo-media) |
 
 ## Testing
 
