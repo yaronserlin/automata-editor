@@ -54,11 +54,15 @@ There is no hot reload — refresh the browser after editing. If you are changin
 | `index.html` | Page markup: toolbar, SVG canvas layers, properties panel, help panel |
 | `js/main.js` | Entry point; instantiates `AutomataEditorApp` |
 | `js/AutomataEditorApp.js` | Composition root: wires models, controllers, and views; canvas sizing; seed diagram |
-| `js/core/` | Automaton data model (`AutomatonNode`, `AutomatonEdge`, `AutomatonGraph`) and validation of loaded project data (`fromRaw`) |
+| `js/core/` | Automaton data model (`AutomatonNode`, `AutomatonEdge`, `AutomatonGraph`), validation of loaded project data (`fromRaw`), the input simulator (`AutomatonSimulator`), and undo history (`HistoryManager`) |
 | `js/geometry/GeometryUtils.js` | Pure helpers: HTML escaping, KaTeX and LaTeX-to-SVG text, snapping, edge path math |
 | `js/interaction/` | `CameraController` (pan/zoom), `SelectionModel` + `EdgeDraftState`, `PointerController` (mouse/touch), `KeyboardController` |
 | `js/rendering/CanvasRenderer.js` | Draws nodes, edges, and alignment guides into the SVG |
-| `js/ui/PropertiesPanel.js` | State/transition property editor |
+| `js/ui/PropertiesPanel.js` | State/transition property editor, with LaTeX preview and error messages |
+| `js/ui/SimulationPanel.js` | Test-input bar: runs, steps through, and explains a simulation |
+| `js/ui/ToastManager.js`, `js/ui/OnboardingHint.js` | Toast notifications and the first-visit hint |
+| `js/io/AutosaveStore.js` | Autosave to `localStorage` |
+| `js/geometry/NodePlacement.js` | Finds free space for new states |
 | `js/io/ProjectIO.js` | `ProjectFile` (JSON save/load) and `DiagramExporter` (SVG, TikZ) |
 | `css/tailwind.css` → `css/tailwind.generated.css` | Tailwind input and its compiled output (committed) |
 | `css/style.css` | Hand-written, non-Tailwind styles |
@@ -73,7 +77,11 @@ Tests use [Vitest](https://vitest.dev) and live in `test/*.test.js`. There is no
 | `test/graph.test.js` | `AutomatonGraph`: adding/deleting states and transitions, naming, parallel-edge curving, `replaceWith` |
 | `test/export.test.js` | `fromRaw` validation of project-file data for nodes, edges, and graphs |
 | `test/render.test.js` | `AutomatonEdge` curve editing and `SelectionModel.cycle` |
-| `test/utils.test.js` | `GeometryUtils`: HTML escaping, LaTeX-to-SVG text (XSS regression guard), axis snapping, edge paths |
+| `test/utils.test.js` | `GeometryUtils`: HTML escaping, LaTeX-to-SVG text (XSS regression guard), LaTeX error messages, axis snapping, edge paths |
+| `test/simulator.test.js` | `AutomatonSimulator`: label parsing, input tokenizing, DFA/NFA/ε runs, step records, error cases |
+| `test/history.test.js` | `HistoryManager` undo/redo and `AutomatonGraph` snapshots |
+| `test/autosave.test.js` | `AutosaveStore` save/restore with in-memory and failing storage |
+| `test/placement.test.js` | `NodePlacement`: finding free space for new states |
 
 The file names predate the current module layout (`export.test.js` covers loading, not exporting). The controllers, renderer, properties panel, and file I/O are not covered; `DiagramExporter.toTikzString` is DOM-free and a good candidate for a first new test.
 
@@ -102,7 +110,7 @@ No linter, formatter, or pre-commit hooks are configured. Match the existing cod
 - Collaborators are passed in through constructors and wired together in `AutomataEditorApp` — don't add globals.
 - **Never put user text into `innerHTML` raw.** Go through `GeometryUtils.escapeHtml`, `GeometryUtils.renderKatex` (KaTeX with `trust: false`), or `GeometryUtils.convertLatexToSvgText`.
 - **Tailwind only scans `index.html`** (`content` in `tailwind.config.js`). Utility classes added from JavaScript are purged unless you add that file to `content`. After changing classes, run `npm run build:css` and commit `css/tailwind.generated.css` — the site is served as committed, with no build step.
-- **Keyboard shortcuts are listed in three places:** the README's shortcut table, the `#instructions` help panel, and the canvas `aria-label` in `index.html`. Keep them in sync with `KeyboardController`, and call `announce()` so new actions give screen-reader feedback.
+- **Keyboard shortcuts are listed in three places:** the README's shortcut table, the `#instructions` section of the Help dialog, and the canvas `aria-label` in `index.html`. Keep them in sync with `KeyboardController`, and call `announce()` so new actions give screen-reader feedback.
 
 ## Pull requests
 
