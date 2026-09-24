@@ -65,7 +65,7 @@ A red check on a pull request means one of these failed; run the same command lo
 | Path | Contents |
 |------|----------|
 | `index.html` | Page markup: toolbar, SVG canvas layers, properties panel, help panel |
-| `js/main.js` | Entry point; instantiates `AutomataEditorApp` |
+| `js/main.js` | Entry point; instantiates `AutomataEditorApp` and mounts the accessibility menu |
 | `js/AutomataEditorApp.js` | Composition root: wires models, controllers, and views; canvas sizing; seed diagram |
 | `js/core/` | Automaton data model (`AutomatonNode`, `AutomatonEdge`, `AutomatonGraph`), validation of loaded project data (`fromRaw`), the input simulator (`AutomatonSimulator`), the language analyzer (`LanguageAnalyzer`: NFA to minimal DFA, then set-builder notation or a regular expression), and undo history (`HistoryManager`) |
 | `js/geometry/GeometryUtils.js` | Pure helpers: HTML escaping, KaTeX and LaTeX-to-SVG text, snapping, edge path math |
@@ -76,11 +76,13 @@ A red check on a pull request means one of these failed; run the same command lo
 | `js/ui/SimulationPanel.js` | Test-input bar: runs, steps through, and explains a simulation |
 | `js/ui/LanguagePanel.js` | "Language L(M)" row under the test bar: shows and copies the accepted language |
 | `js/ui/ToastManager.js`, `js/ui/OnboardingHint.js` | Toast notifications and the first-visit hint |
+| `js/ui/AccessibilityMenu.js` | Accessibility menu (text size, high contrast, underline links), saved in `localStorage`; opened from the toolbar button, or a floating button on `legal.html` |
 | `js/io/AutosaveStore.js` | Autosave to `localStorage` |
 | `js/geometry/NodePlacement.js` | Finds free space for new states |
 | `js/io/ProjectIO.js` | `ProjectFile` (JSON save/load) and `DiagramExporter` (SVG, TikZ) |
 | `css/tailwind.css` → `css/tailwind.generated.css` | Tailwind input and its compiled output (committed) |
 | `css/style.css` | Hand-written, non-Tailwind styles |
+| `css/a11y.css` | Accessibility menu styles, plain CSS so `legal.html` can use them too |
 | `test/` | Vitest suites |
 | `scripts/check-css.js` | The `check:css` script used locally and in CI |
 | `eslint.config.js` | ESLint flat config: recommended rules, browser globals (plus `katex`) for `js/`, Node globals for tests and scripts |
