@@ -6,6 +6,9 @@ import { AutomatonNode } from '../core/AutomatonNode.js';
  * dragging nodes/edges/the start-arrow, and drawing new edges by drag or double-click.
  */
 export class PointerController {
+    /** @type {number} Maximum gap between two presses on a node that counts as a double-click. */
+    static DOUBLE_CLICK_MS = 400;
+
     /**
      * @param {Object} dependencies
      * @param {SVGSVGElement} dependencies.svgElement
@@ -51,9 +54,19 @@ export class PointerController {
 
         this.isPinching = false;
         this.initialPinchDistance = null;
+        /** @type {{clientX: number, clientY: number}|null} Last midpoint of a two-finger gesture, for panning. */
+        this.lastPinchMidpoint = null;
 
         this.lastCanvasTapTime = 0;
         this.lastNodeTapTime = 0;
+        /** @type {{nodeId: string, time: number}|null} Last mouse press on a node, for double-click detection. */
+        this.lastNodeClick = null;
+        /**
+         * True between the double-click/double-tap that starts an edge and the release of
+         * that same press, so releasing on the source state keeps the draft open (the user
+         * then clicks the target) instead of instantly creating a self-loop.
+         */
+        this.awaitingDraftRelease = false;
 
         /** @type {Array<{type: 'v'|'h', x?: number, y?: number}>} */
         this.activeGuides = [];
@@ -74,6 +87,20 @@ export class PointerController {
     }
 
     /**
+     * Moves keyboard focus from a text field (e.g. Test input or the properties panel)
+     * back to the canvas when the user presses on it, so shortcuts like Delete and
+     * Ctrl+Z work right away. Pressing on a state calls preventDefault, which would
+     * otherwise leave focus in the text field.
+     */
+    focusCanvas() {
+        const active = document.activeElement;
+        if (active && active !== this.svgElement && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+            active.blur();
+            this.svgElement.focus({ preventScroll: true });
+        }
+    }
+
+    /**
      * @param {WheelEvent} event
      */
     handleWheel(event) {
@@ -87,6 +114,7 @@ export class PointerController {
      * @param {MouseEvent|TouchEvent} event
      */
     handleCanvasPointerDown(event) {
+        this.focusCanvas();
         if (event.type === 'touchstart') {
             const currentTime = Date.now();
             const tapLength = currentTime - this.lastCanvasTapTime;
@@ -103,6 +131,7 @@ export class PointerController {
             const dx = event.touches[0].clientX - event.touches[1].clientX;
             const dy = event.touches[0].clientY - event.touches[1].clientY;
             this.initialPinchDistance = Math.hypot(dx, dy);
+            this.lastPinchMidpoint = this.getTouchMidpoint(event);
             this.isPinching = true;
             this.isPanning = false;
             return;
@@ -174,20 +203,9 @@ export class PointerController {
 
         if (nodeGroup && nodeGroup.dataset && nodeGroup.dataset.id) {
             const nodeId = nodeGroup.dataset.id;
-            this.selectionModel.selectSingleNode(nodeId);
-            this.openPropertiesPanel();
-
-            this.edgeDraft.start(nodeId);
-            this.isDraggingNode = false;
-            this.draggedNodeId = null;
-
-            const node = this.graph.getNodeById(nodeId);
-            if (node) {
-                const initialTouchPos = GeometryUtils.getMousePosition(this.svgElement, event);
-                this.tempEdgePathElement.style.display = 'block';
-                this.tempEdgePathElement.setAttribute('d', `M ${node.positionX},${node.positionY} L ${initialTouchPos.positionX},${initialTouchPos.positionY}`);
-            }
-            this.requestRender();
+            // Already started by the press-timing detection in handleNodeMouseDown.
+            if (this.edgeDraft.active && this.edgeDraft.sourceNodeId === nodeId) return;
+            this.startEdgeDraftFromDoubleClick(event, nodeId);
         } else if (edgeGroup && edgeGroup.dataset && edgeGroup.dataset.id) {
             this.selectionModel.selectEdge(edgeGroup.dataset.id);
             this.openPropertiesPanel();
@@ -197,6 +215,32 @@ export class PointerController {
             this.selectionModel.selectSingleNode(newNode.id);
             this.requestRender();
         }
+    }
+
+    /**
+     * Starts drawing a transition from a node after a double-click or double-tap on it.
+     * The user then either keeps the button/finger down and drags to the target, or
+     * releases and clicks/taps the target.
+     * @param {MouseEvent|TouchEvent} event
+     * @param {string} nodeId
+     */
+    startEdgeDraftFromDoubleClick(event, nodeId) {
+        this.selectionModel.selectSingleNode(nodeId);
+        this.openPropertiesPanel();
+
+        this.edgeDraft.start(nodeId, 'pointer');
+        this.awaitingDraftRelease = true;
+        this.lastNodeClick = null;
+        this.isDraggingNode = false;
+        this.draggedNodeId = null;
+
+        const node = this.graph.getNodeById(nodeId);
+        if (node) {
+            const initialTouchPos = GeometryUtils.getMousePosition(this.svgElement, event);
+            this.tempEdgePathElement.style.display = 'block';
+            this.tempEdgePathElement.setAttribute('d', `M ${node.positionX},${node.positionY} L ${initialTouchPos.positionX},${initialTouchPos.positionY}`);
+        }
+        this.requestRender();
     }
 
     /**
@@ -237,6 +281,34 @@ export class PointerController {
             this.cameraController.changeZoom((currentDistance - this.initialPinchDistance) * 0.005);
         }
         this.initialPinchDistance = currentDistance;
+
+        // Moving both fingers together pans the canvas, so touch users can reach off-screen states.
+        const midpoint = this.getTouchMidpoint(event);
+        if (this.lastPinchMidpoint) {
+            this.cameraController.panPositionX += (midpoint.clientX - this.lastPinchMidpoint.clientX) / this.cameraController.zoom;
+            this.cameraController.panPositionY += (midpoint.clientY - this.lastPinchMidpoint.clientY) / this.cameraController.zoom;
+            this.cameraController.updateViewBox();
+        }
+        this.lastPinchMidpoint = midpoint;
+    }
+
+    /**
+     * @param {TouchEvent} event
+     * @returns {{clientX: number, clientY: number}} The midpoint between the first two touches.
+     */
+    getTouchMidpoint(event) {
+        return {
+            clientX: (event.touches[0].clientX + event.touches[1].clientX) / 2,
+            clientY: (event.touches[0].clientY + event.touches[1].clientY) / 2
+        };
+    }
+
+    /**
+     * @returns {boolean} Whether a drag gesture that edits the diagram is still in progress,
+     *   so undo history can wait for it to finish instead of recording every frame.
+     */
+    get isEditingGestureActive() {
+        return this.isDraggingNode || this.isDraggingEdge || this.isDraggingStartArrow;
     }
 
     /**
@@ -371,6 +443,7 @@ export class PointerController {
         if (this.isPinching && (!event.touches || event.touches.length < 2)) {
             this.isPinching = false;
             this.initialPinchDistance = null;
+            this.lastPinchMidpoint = null;
             return;
         }
         if (this.isPanning) {
@@ -412,6 +485,7 @@ export class PointerController {
      */
     handleNodeMouseDown(event, nodeId) {
         event.stopPropagation();
+        this.focusCanvas();
         if (event.type !== 'touchstart' || event.cancelable) event.preventDefault();
 
         if (event.type === 'touchstart') {
@@ -431,7 +505,8 @@ export class PointerController {
                 this.selectionModel.selectSingleNode(nodeId);
                 this.openPropertiesPanel();
 
-                this.edgeDraft.start(nodeId);
+                this.edgeDraft.start(nodeId, 'pointer');
+                this.awaitingDraftRelease = false;
                 this.isDraggingNode = false;
                 this.draggedNodeId = null;
                 this.tempEdgePathElement.style.display = 'block';
@@ -442,8 +517,23 @@ export class PointerController {
         }
 
         if (this.edgeDraft.active && this.edgeDraft.sourceNodeId) {
+            this.lastNodeClick = null;
             this.handleNodeMouseUp(event, nodeId);
             return;
+        }
+
+        // The canvas re-renders on every press, which replaces the node's DOM element, so
+        // the browser's own dblclick event never reaches a node. Detect it from timing instead.
+        if (event.type === 'mousedown' && event.button === 0) {
+            const now = Date.now();
+            const isDoubleClick = this.lastNodeClick !== null
+                && this.lastNodeClick.nodeId === nodeId
+                && now - this.lastNodeClick.time < PointerController.DOUBLE_CLICK_MS;
+            this.lastNodeClick = isDoubleClick ? null : { nodeId, time: now };
+            if (isDoubleClick) {
+                this.startEdgeDraftFromDoubleClick(event, nodeId);
+                return;
+            }
         }
 
         if (!this.selectionModel.hasNode(nodeId)) {
@@ -484,6 +574,13 @@ export class PointerController {
             }
         }
 
+        const isReleaseOfStartingPress = this.awaitingDraftRelease && (event.type === 'mouseup' || event.type === 'touchend');
+        this.awaitingDraftRelease = false;
+        if (isReleaseOfStartingPress && actualTargetId === this.edgeDraft.sourceNodeId) {
+            // Released on the source itself: keep drawing and wait for a click on the target.
+            return;
+        }
+
         if (actualTargetId) {
             const newEdge = this.graph.addEdge(this.edgeDraft.sourceNodeId, actualTargetId);
             this.selectionModel.selectEdge(newEdge.id);
@@ -501,6 +598,7 @@ export class PointerController {
      */
     handleEdgeMouseDown(event, edgeId) {
         event.stopPropagation();
+        this.focusCanvas();
         if (event.type !== 'touchstart' || event.cancelable) event.preventDefault();
         this.selectionModel.selectEdge(edgeId);
         this.openPropertiesPanel();
